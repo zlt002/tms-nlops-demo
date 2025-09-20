@@ -4,7 +4,7 @@ import {
   PODStatus,
   SignatureType,
   SignatureStatus
-} from '../../../prisma/generated/client'
+} from '@prisma/client'
 
 export const createPODSchema = z.object({
   orderId: z.string().min(1, '订单ID不能为空'),
