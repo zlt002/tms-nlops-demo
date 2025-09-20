@@ -14,41 +14,27 @@ export async function GET(
       where: { id: params.id },
       include: {
         customer: true,
-        assignedVehicle: {
-          include: {
-            driver: true
-          }
-        },
         shipments: {
           include: {
             vehicle: true,
             driver: true
           }
         },
-        trackings: {
+        documents: true,
+        trackingLogs: {
           orderBy: { createdAt: 'desc' }
-        },
-        documents: true
+        }
       }
     })
 
     if (!order) {
-      return NextResponse.json(
-        { error: '订单不存在' },
-        { status: 404 }
-      )
+      return ApiResponseBuilder.error('订单不存在', 404)
     }
 
-    return NextResponse.json({
-      success: true,
-      data: order
-    })
+    return ApiResponseBuilder.success(order, '获取订单详情成功')
   } catch (error) {
     console.error('获取订单详情失败:', error)
-    return NextResponse.json(
-      { error: '获取订单详情失败', details: error.message },
-      { status: 500 }
-    )
+    return ApiResponseBuilder.error('获取订单详情失败', 500)
   }
 }
 
@@ -65,10 +51,7 @@ export async function PUT(
     })
 
     if (!existingOrder) {
-      return NextResponse.json(
-        { error: '订单不存在' },
-        { status: 404 }
-      )
+      return ApiResponseBuilder.error('订单不存在', 404)
     }
 
     const updateData: any = {
@@ -110,32 +93,24 @@ export async function PUT(
       data: updateData,
       include: {
         customer: true,
-        assignedVehicle: {
-          include: {
-            driver: true
-          }
-        },
         shipments: {
           include: {
             vehicle: true,
             driver: true
           }
         },
-        documents: true
+        documents: true,
+        trackingLogs: {
+          orderBy: { createdAt: 'desc' },
+          take: 5
+        }
       }
     })
 
-    return NextResponse.json({
-      success: true,
-      data: updatedOrder,
-      message: '订单更新成功'
-    })
+    return ApiResponseBuilder.success(updatedOrder, '订单更新成功')
   } catch (error) {
     console.error('更新订单失败:', error)
-    return NextResponse.json(
-      { error: '更新订单失败', details: error.message },
-      { status: 500 }
-    )
+    return ApiResponseBuilder.error('更新订单失败', 500)
   }
 }
 
@@ -149,32 +124,20 @@ export async function DELETE(
     })
 
     if (!order) {
-      return NextResponse.json(
-        { error: '订单不存在' },
-        { status: 404 }
-      )
+      return ApiResponseBuilder.error('订单不存在', 404)
     }
 
     if (order.status !== OrderStatus.PENDING) {
-      return NextResponse.json(
-        { error: '只有待处理的订单才能删除' },
-        { status: 400 }
-      )
+      return ApiResponseBuilder.error('只有待处理的订单才能删除', 400)
     }
 
     await prisma.order.delete({
       where: { id: params.id }
     })
 
-    return NextResponse.json({
-      success: true,
-      message: '订单删除成功'
-    })
+    return ApiResponseBuilder.success(null, '订单删除成功')
   } catch (error) {
     console.error('删除订单失败:', error)
-    return NextResponse.json(
-      { error: '删除订单失败', details: error.message },
-      { status: 500 }
-    )
+    return ApiResponseBuilder.error('删除订单失败', 500)
   }
 }

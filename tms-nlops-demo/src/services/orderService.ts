@@ -122,6 +122,26 @@ export class OrderService {
     return shipment
   }
 
+  static async addTrackingLog(orderId: string, location: string, status: string, coordinates?: any, notes?: string, imageUrl?: string) {
+    return await prisma.trackingLog.create({
+      data: {
+        orderId,
+        location,
+        status,
+        coordinates: coordinates || {},
+        notes,
+        imageUrl
+      }
+    })
+  }
+
+  static async getOrderTrackingHistory(orderId: string) {
+    return await prisma.trackingLog.findMany({
+      where: { orderId },
+      orderBy: { createdAt: 'desc' }
+    })
+  }
+
   private static async calculateDistance(origin: string, destination: string): Promise<number> {
     // 简化版距离计算，实际应该使用地图API
     return Math.random() * 500 + 50 // 返回50-550公里之间的随机距离
@@ -144,7 +164,11 @@ export class OrderService {
               driver: true
             }
           },
-          documents: true
+          documents: true,
+          trackingLogs: {
+            orderBy: { createdAt: 'desc' },
+            take: 1
+          }
         },
         skip: (page - 1) * limit,
         take: limit,

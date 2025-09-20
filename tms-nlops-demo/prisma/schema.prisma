@@ -215,10 +215,15 @@ model User {
   updatedAt DateTime @updatedAt
 
   // 关系
-  vehicles    Vehicle[]
-  receipts    Receipt[]
-  nlCommands  NLCommand[]
-  auditLogs   AuditLog[]
+  vehicles        Vehicle[]
+  receipts        Receipt[]
+  nlCommands      NLCommand[]
+  auditLogs       AuditLog[]
+  verifiedPODs    POD[]            @relation("PODVerifier", fields: [id], references: [verifiedBy])
+  approvedPODs    POD[]            @relation("PODApprover", fields: [id], references: [approvedBy])
+  rejectedPODs    POD[]            @relation("PODRejector", fields: [id], references: [rejectedBy])
+  podSignatures   PODSignature[]
+  podActivityLogs PODActivityLog[]
 
   @@map("users")
 }
@@ -407,7 +412,7 @@ model Tracking {
   order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   location    String
   coordinates Json            // {"lat": 0.0, "lng": 0.0}
-  status      TrackingStatus  @default(IN_TRANSIT)
+  status      TrackingStatus  @default(NORMAL)
   timestamp   DateTime        @default(now())
   notes       String?
   imageUrl    String?
@@ -609,4 +614,240 @@ model TrackingLog {
   @@index([orderId])
   @@index([status])
   @@index([createdAt])
+}
+
+// POD文档模型
+model POD {
+  id                String           @id @default(cuid())
+  podNumber         String           @unique
+  orderId           String
+  order             Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  documentType      PODDocumentType  @default(PROOF_OF_DELIVERY)
+  status            PODStatus        @default(PENDING)
+
+  // 文件信息
+  fileName          String
+  originalName      String
+  fileSize          Int              // 文件大小(字节)
+  mimeType          String           // MIME类型
+  filePath          String           // 文件存储路径
+  fileUrl           String           // 文件访问URL
+  checksum          String           // 文件校验和
+
+  // POD特有信息
+  deliveryLocation  String?
+  deliveryTime      DateTime?
+  receiverName     String?
+  receiverContact  String?
+  cargoCondition   String?          // 货物状况描述
+  specialNotes     String?          // 特殊说明
+
+  // 审核信息
+  verifiedBy        String?          @db.Uuid
+  verifiedAt        DateTime?
+  verifier          User?            @relation(fields: [verifiedBy], references: [id])
+  approvedBy        String?          @db.Uuid
+  approvedAt        DateTime?
+  approver          User?            @relation("PODApprover", fields: [approvedBy], references: [id])
+  rejectedBy        String?          @db.Uuid
+  rejectedAt        DateTime?
+  rejector          User?            @relation("PODRejector", fields: [rejectedBy], references: [id])
+  rejectionReason   String?
+
+  // 元数据
+  tags              String[]
+  metadata          String?          // JSON格式的额外元数据
+  version           Int              @default(1)
+
+  createdBy         String
+  updatedBy         String
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // 关联关系
+  signatures        PODSignature[]
+  activityLogs      PODActivityLog[]
+
+  @@map("pods")
+  @@index([orderId])
+  @@index([documentType])
+  @@index([status])
+  @@index([verifiedBy])
+  @@index([approvedBy])
+  @@index([createdAt])
+}
+
+// POD签名模型
+model PODSignature {
+  id              String           @id @default(cuid())
+  podId           String
+  pod             POD              @relation(fields: [podId], references: [id], onDelete: Cascade)
+
+  signerId        String           @db.Uuid
+  signer          User             @relation("PODSigner", fields: [signerId], references: [id])
+  signerName      String
+  signerType      String           // DRIVER, RECEIVER, STAFF, etc.
+  signatureData   String           // 签名图片数据(Base64)
+  signatureType   SignatureType    @default(WRITTEN)
+
+  // 签署信息
+  ipAddress       String?
+  userAgent       String?
+  location        String?          // 签署位置
+  timestamp       DateTime         @default(now())
+
+  // 验证信息
+  verificationCode String?
+  isVerified      Boolean          @default(false)
+  verifiedAt      DateTime?
+  verifiedBy      String?          @db.Uuid
+  verifier        User?            @relation("PODSignatureVerifier", fields: [verifiedBy], references: [id])
+
+  status          SignatureStatus  @default(PENDING)
+  reason          String?          // 签署原因或说明
+
+  createdAt       DateTime         @default(now())
+
+  @@map("pod_signatures")
+  @@index([podId])
+  @@index([signerId])
+  @@index([status])
+}
+
+// POD活动日志模型
+model PODActivityLog {
+  id            String   @id @default(cuid())
+  podId         String
+  pod           POD      @relation(fields: [podId], references: [id], onDelete: Cascade)
+
+  action        String   // 操作类型
+  description   String   // 操作描述
+  performedBy   String   @db.Uuid
+  performer     User     @relation(fields: [performedBy], references: [id])
+  changes       String?  // 变更内容(JSON格式)
+  metadata      String?  // 额外元数据
+
+  ipAddress     String?
+  userAgent     String?
+  timestamp     DateTime @default(now())
+
+  @@map("pod_activity_logs")
+  @@index([podId])
+  @@index([performedBy])
+  @@index([timestamp])
+}// 跟踪警报模型
+model TrackingAlert {
+  id          String   @id @default(cuid())
+  shipmentId  String
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  // 警报信息
+  alertType   AlertType
+  severity    AlertSeverity
+  title       String
+  description String
+  location    String?  // JSON格式 {lat, lng, address}
+
+  // 状态信息
+  status      AlertStatus @default(ACTIVE)
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+
+  // 时间信息
+  triggeredAt DateTime @default(now())
+  resolvedAt  DateTime?
+
+  // 处理信息
+  actionTaken String?
+  resolution  String?
+  notes       String?
+
+  // 关联信息
+  trackingLogId String?
+  trackingLog TrackingLog? @relation(fields: [trackingLogId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tracking_alerts")
+  @@index([shipmentId])
+  @@index([alertType])
+  @@index([severity])
+  @@index([status])
+  @@index([triggeredAt])
+}
+
+// 跟踪路线模型
+model TrackingRoute {
+  id          String   @id @default(cuid())
+  shipmentId  String   @unique
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  // 路线信息
+  plannedRoute String  // JSON格式，包含路线点
+  actualRoute  String? // JSON格式，实际行驶路线
+  distance     Float   // 距离(公里)
+  duration     Float   // 预计时间(分钟)
+
+  // 统计信息
+  totalDistance Float? // 实际总距离
+  totalDuration Float? // 实际总时间
+  avgSpeed      Float? // 平均速度
+  maxSpeed      Float? // 最高速度
+  fuelUsed      Float? // 燃油消耗
+  stops         Int     @default(0) // 停车次数
+  idleTime      Float   @default(0) // 怠速时间(分钟)
+
+  // 路线状态
+  status       RouteStatus @default(PLANNED)
+  deviation    Float    @default(0) // 偏差百分比
+  isOptimal    Boolean  @default(true) // 是否最优路线
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // 关联关系
+  checkpoints  TrackingCheckpoint[]
+
+  @@map("tracking_routes")
+  @@index([shipmentId])
+  @@index([status])
+}
+
+// 跟踪检查点模型
+model TrackingCheckpoint {
+  id          String   @id @default(cuid())
+  routeId     String
+  route       TrackingRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  // 检查点信息
+  name        String
+  type        CheckpointType
+  address     String
+  coordinates String   // JSON格式 {lat, lng}
+  radius      Float    @default(100) // 半径(米)
+
+  // 时间信息
+  estimatedTime DateTime? // 预计到达时间
+  actualTime    DateTime? // 实际到达时间
+  duration      Float?    // 停留时间(分钟)
+
+  // 状态信息
+  status       CheckpointStatus @default(PENDING)
+  isPassed     Boolean  @default(false)
+  isRequired   Boolean  @default(true)
+
+  // 统计信息
+  visitCount   Int      @default(0)
+  avgDuration  Float?   // 平均停留时间
+
+  notes        String?
+  order        Int      // 顺序
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("tracking_checkpoints")
+  @@index([routeId])
+  @@index([type])
+  @@index([status])
 }

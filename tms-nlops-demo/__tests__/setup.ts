@@ -1,5 +1,25 @@
 import { jest } from '@jest/globals'
 
+// Mock Prisma enums before any imports
+jest.mock('@prisma/client', () => ({
+  VehicleType: {
+    TRUCK: 'TRUCK',
+    VAN: 'VAN',
+    TRAILER: 'TRAILER'
+  },
+  VehicleStatus: {
+    AVAILABLE: 'AVAILABLE',
+    IN_TRANSIT: 'IN_TRANSIT',
+    MAINTENANCE: 'MAINTENANCE',
+    UNAVAILABLE: 'UNAVAILABLE'
+  },
+  MaintenanceType: {
+    ROUTINE: 'ROUTINE',
+    REPAIR: 'REPAIR',
+    INSPECTION: 'INSPECTION'
+  }
+}))
+
 // Mock the entire vehicle service module
 jest.mock('@/services/vehicleService', () => ({
   VehicleService: {

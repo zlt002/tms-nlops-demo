@@ -21,7 +21,10 @@
     "db:reset": "prisma migrate reset",
     "db:init": "node scripts/init-database.js",
     "prepare": "husky install",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
@@ -45,6 +48,7 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.20",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -53,10 +57,13 @@
     "eslint-config-next": "15.5.3",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
+    "jest": "^30.1.3",
     "lint-staged": "^16.1.6",
+    "node-mocks-http": "^1.17.2",
     "prettier": "^3.6.2",
     "prisma": "^6.16.2",
     "tailwindcss": "^4",
+    "ts-jest": "^29.4.4",
     "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.8",
     "typescript": "^5"

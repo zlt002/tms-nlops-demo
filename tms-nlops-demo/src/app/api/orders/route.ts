@@ -1,10 +1,3 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db/prisma'
-import { OrderService } from '@/services/orderService'
-import { ApiResponseBuilder, withErrorHandler } from '@/lib/api/response'
-import { createOrderSchema, orderQuerySchema } from '@/lib/validators/order'
-import { OrderStatus, Priority, PaymentStatus } from '@prisma/client'
-
 export const GET = withErrorHandler(async (request: NextRequest) => {
   const { searchParams } = new URL(request.url)
 
@@ -37,17 +30,16 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       where,
       include: {
         customer: true,
-        assignedVehicle: {
-          include: {
-            driver: true
-          }
-        },
-        documents: true,
         shipments: {
           include: {
             vehicle: true,
             driver: true
           }
+        },
+        documents: true,
+        trackingLogs: {
+          orderBy: { createdAt: 'desc' },
+          take: 5 // 只返回最新的5条跟踪记录
         }
       },
       skip: (validatedQuery.page - 1) * validatedQuery.limit,
@@ -59,16 +51,16 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     prisma.order.count({ where })
   ])
 
-  return NextResponse.json({
-    success: true,
-    data: orders,
-    pagination: {
+  return ApiResponseBuilder.paginated(
+    orders,
+    {
       page: validatedQuery.page,
       limit: validatedQuery.limit,
       total,
       pages: Math.ceil(total / validatedQuery.limit)
-    }
-  })
+    },
+    '获取订单列表成功'
+  )
 })
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
