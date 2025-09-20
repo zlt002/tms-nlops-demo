@@ -2,7 +2,7 @@
 title: TMS NL-Ops 演示系统实现史诗
 status: backlog
 created: 2025-09-20T04:00:00Z
-updated: 2025-09-20T04:10:34Z
+updated: 2025-09-20T04:13:44Z
 version: 1.0
 ---
 
@@ -15,22 +15,29 @@ version: 1.0
 ## 技术架构决策
 
 ### 核心技术栈
-- **前端框架**: Next.js 14+ (App Router)
-- **状态管理**: React Server Components + Client Components
-- **AI编排**: LangGraph.js (JavaScript版本)
-- **AI交互**: Vercel AI SDK
-- **语言**: TypeScript
-- **样式**: Tailwind CSS + shadcn/ui
+- **前端框架**: Next.js 15+ (App Router)
+- **状态管理**: React 19 + React Server Components
+- **AI编排**: LangGraph.js v1.0+
+- **AI交互**: Vercel AI SDK v4.0+
+- **语言**: TypeScript 5.5+
+- **样式**: Tailwind CSS v4 + shadcn/ui v2
 - **数据库**: PostgreSQL (生产数据库)
   - 主机: 47.115.43.94
   - 用户: postgres
   - 数据库: HhnthnBBEWhCdiZL
 
 ### 架构模式
-1. **Supervisor Agent架构**: 使用LangGraph.js实现智能决策节点
+1. **Supervisor Agent架构**: 使用LangGraph.js v1实现智能决策节点
 2. **双UI模式**: 并行实现传统UI和生成式UI
 3. **API分层**: 业务API与AI网关分离
 4. **组件化**: 可复用的生成式UI组件库
+
+### LangGraph v1 新特性
+- **增强的流式处理**: 支持更细粒度的流式控制和调试
+- **改进的状态管理**: 更灵活的状态定义和更新机制
+- **内置工具节点**: 无需手动实现ToolNode
+- **更好的TypeScript支持**: 更强的类型推断和错误检查
+- **性能优化**: 减少了不必要的中间状态，提升执行效率
 
 ## 实施策略
 
@@ -41,9 +48,9 @@ version: 1.0
 - 配置TypeScript、Tailwind CSS和shadcn/ui
 - 安装核心依赖：
   ```bash
-  npm install @langchain/langgraph @langchain/core @ai-sdk/react openai pg @types/pg prisma
+  npm install @langchain/langgraph@1.0.0 @langchain/core@0.3.0 @ai-sdk/react@4.0.0 @ai-sdk/openai@1.0.0 openai@4.50.0 pg@8.13.0 @types/pg@8.11.0 prisma@6.0.0
   ```
-- 初始化shadcn/ui：
+- 初始化shadcn/ui v2：
   ```bash
   npx shadcn@latest init
   ```
@@ -429,7 +436,7 @@ const queryPODTool = tool(
 
 #### 4.3 Supervisor节点实现
 ```typescript
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { createReactAgent } from "@langchain/langgraph";
 
 const supervisorNode = async (state: AgentState) => {
   // 根据用户输入决定使用哪个工具
@@ -461,40 +468,37 @@ const supervisorNode = async (state: AgentState) => {
 };
 ```
 
-#### 4.4 工作流定义
+#### 4.4 工作流定义 (LangGraph v1)
 ```typescript
-const workflow = new StateGraph<AgentState>({
-  channels: {
-    messages: MessagesAnnotation,
-    context: {
-      reducer: (state, update) => ({ ...state, ...update }),
-      default: () => ({})
-    },
-    data: {
-      reducer: (state, update) => ({ ...state, ...update }),
-      default: () => ({})
-    },
-    ui: {
-      reducer: (state, update) => ({ ...state, ...update }),
-      default: () => ({})
+import { StateGraph, MessagesAnnotation, ToolNode } from "@langchain/langgraph";
+
+const workflow = new StateGraph(AgentState)
+  .addNode("supervisor", supervisorNode)
+  .addNode("tools", new ToolNode(tools))
+  .addEdge("__start__", "supervisor")
+  .addConditionalEdges(
+    "supervisor",
+    (state: AgentState) => {
+      const lastMessage = state.messages[state.messages.length - 1];
+      return lastMessage.tool_calls ? "tools" : "__end__";
     }
-  }
-});
-
-workflow.addNode("supervisor", supervisorNode);
-workflow.addNode("tools", new ToolNode(tools));
-
-workflow.addEdge("__start__", "supervisor");
-workflow.addConditionalEdges(
-  "supervisor",
-  (state: AgentState) => {
-    const lastMessage = state.messages[state.messages.length - 1];
-    return lastMessage.tool_calls ? "tools" : "__end__";
-  }
-);
-workflow.addEdge("tools", "supervisor");
+  )
+  .addEdge("tools", "supervisor");
 
 export const graph = workflow.compile();
+
+// 流式调用示例
+export const streamGraph = async (input: Partial<AgentState>) => {
+  const stream = await graph.stream(input, {
+    streamMode: "values",
+  });
+
+  for await (const chunk of stream) {
+    console.log("Chunk:", chunk);
+  }
+
+  return stream;
+};
 ```
 
 ### 第五阶段：生成式UI组件（第3周）
@@ -725,34 +729,31 @@ export function VehicleTracker({ vehicle, currentLocation, estimatedArrival, rou
 
 ### 第六阶段：集成与测试（第4周）
 
-#### 6.1 API网关实现
+#### 6.1 API网关实现 (Vercel AI SDK v4)
 ```typescript
 // app/api/chat/route.ts
 import { graph } from "@/agent";
-import { streamText } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { streamText, convertToCoreMessages } from 'ai';
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  // 转换消息格式
-  const langchainMessages = messages.map(msg => ({
-    role: msg.role,
-    content: msg.content
-  }));
-
-  // 流式调用LangGraph
-  const stream = await graph.stream({
-    messages: langchainMessages,
-    context: { userRole: 'dispatcher' }
-  });
-
-  // 转换为Vercel AI SDK格式
-  const aiStream = transformLangGraphStream(stream);
+  // 转换为Vercel AI SDK v4消息格式
+  const coreMessages = convertToCoreMessages(messages);
 
   return streamText({
-    model: openai('gpt-4'),
-    messages,
-    stream: aiStream
+    model: openai('gpt-4-turbo-preview'),
+    messages: coreMessages,
+    async onFinish({ responseMessages }) {
+      // 完成后的处理逻辑
+      console.log('Chat completed:', responseMessages);
+    },
+    system: `你是一个智能运输管理助手，帮助用户处理订单、排车、跟踪和回单等业务。`,
+    tools: {
+      // 可以在这里直接定义工具，让LLM调用
+    },
+    maxSteps: 5, // 限制最大步骤数
   });
 }
 ```
