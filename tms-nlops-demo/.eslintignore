@@ -1,0 +1,21 @@
+# Prisma generated files
+prisma/generated/**
+prisma/seed.ts
+
+# Scripts
+scripts/**
+
+# Build output
+.next/**
+out/**
+dist/**
+
+# Node modules
+node_modules/**
+
+# Environment files
+.env*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
