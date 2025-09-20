@@ -2,7 +2,7 @@
 title: TMS NL-Ops 演示系统实现史诗
 status: backlog
 created: 2025-09-20T04:00:00Z
-updated: 2025-09-20T04:00:00Z
+updated: 2025-09-20T04:10:34Z
 version: 1.0
 ---
 
@@ -20,8 +20,11 @@ version: 1.0
 - **AI编排**: LangGraph.js (JavaScript版本)
 - **AI交互**: Vercel AI SDK
 - **语言**: TypeScript
-- **样式**: Tailwind CSS
-- **数据库**: 本地JSON文件（演示阶段）
+- **样式**: Tailwind CSS + shadcn/ui
+- **数据库**: PostgreSQL (生产数据库)
+  - 主机: 47.115.43.94
+  - 用户: postgres
+  - 数据库: HhnthnBBEWhCdiZL
 
 ### 架构模式
 1. **Supervisor Agent架构**: 使用LangGraph.js实现智能决策节点
@@ -35,10 +38,14 @@ version: 1.0
 
 #### 1.1 项目初始化
 - 创建Next.js项目结构
-- 配置TypeScript和Tailwind CSS
+- 配置TypeScript、Tailwind CSS和shadcn/ui
 - 安装核心依赖：
   ```bash
-  npm install @langchain/langgraph @langchain/core @ai-sdk/react openai
+  npm install @langchain/langgraph @langchain/core @ai-sdk/react openai pg @types/pg prisma
+  ```
+- 初始化shadcn/ui：
+  ```bash
+  npx shadcn@latest init
   ```
 
 #### 1.2 目录结构设计
@@ -61,41 +68,184 @@ version: 1.0
 ├── /components
 │   ├── /tms               # 传统UI组件
 │   └── /generative-ui     # 生成式UI组件
-└── /data                  # 模拟数据
+├── /prisma                 # 数据库schema
+├── /lib                    # 数据库连接和工具函数
+└── /data                   # 种子数据
 ```
 
-#### 1.3 数据模型设计
+#### 1.3 数据库配置
 ```typescript
-// 订单数据模型
-interface Order {
-  id: string;
-  customerId: string;
-  customerName: string;
-  origin: Location;
-  destination: Location;
-  goods: Goods[];
-  status: OrderStatus;
-  timeline: TimelineEvent[];
+// .env.local
+DATABASE_URL="postgresql://postgres:HhnthnBBEWhCdiZL@47.115.43.94:5432/HhnthnBBEWhCdiZL"
+```
+
+```typescript
+// lib/db.ts
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+```
+
+#### 1.4 Prisma Schema设计
+```prisma
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
 }
 
-// 车辆数据模型
-interface Vehicle {
-  id: string;
-  type: VehicleType;
-  capacity: number;
-  currentLocation: Location;
-  status: VehicleStatus;
-  driver: Driver;
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// 发车单数据模型
-interface Dispatch {
-  id: string;
-  orders: string[];
-  vehicle: Vehicle;
-  route: Route;
-  status: DispatchStatus;
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String?
+  email       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders      Order[]
 }
+
+model Order {
+  id           String      @id @default(cuid())
+  orderId      String      @unique
+  customerId   String
+  status       OrderStatus @default(PENDING)
+
+  origin       Json
+  destination  Json
+
+  weight       Float?
+  volume       Float?
+  goodsType    String?
+  specialReq   String?
+
+  scheduledAt  DateTime?
+  pickedUpAt   DateTime?
+  deliveredAt  DateTime?
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  customer     Customer    @relation(fields: [customerId], references: [id])
+  dispatch     Dispatch?
+  tracking     Tracking[]
+  pod          POD?
+}
+
+model Vehicle {
+  id          String        @id @default(cuid())
+  plateNumber String        @unique
+  type        VehicleType
+  capacity    Float
+  driverName  String
+  driverPhone String
+
+  currentLat  Float?
+  currentLng  Float?
+  status      VehicleStatus @default(AVAILABLE)
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  dispatch    Dispatch[]
+  tracking    Tracking[]
+}
+
+model Dispatch {
+  id         String           @id @default(cuid())
+  dispatchNo String           @unique
+  vehicleId  String
+  status     DispatchStatus   @default(PLANNING)
+
+  plannedAt  DateTime?
+  departedAt DateTime?
+  arrivedAt  DateTime?
+
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  vehicle    Vehicle          @relation(fields: [vehicleId], references: [id])
+  orders     Order[]
+  tracking   Tracking[]
+}
+
+model Tracking {
+  id          String      @id @default(cuid())
+  orderId     String?
+  dispatchId  String?
+  vehicleId   String
+
+  location    Json
+  event       String
+  timestamp   DateTime    @default(now())
+
+  order       Order?      @relation(fields: [orderId], references: [id])
+  dispatch    Dispatch?   @relation(fields: [dispatchId], references: [id])
+  vehicle     Vehicle?    @relation(fields: [vehicleId], references: [id])
+}
+
+model POD {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  imageUrl    String?
+  notes       String?
+  status      PODStatus @default(PENDING)
+  reviewedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  order       Order    @relation(fields: [orderId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  SCHEDULED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  IN_TRANSIT
+  MAINTENANCE
+  OFFLINE
+}
+
+enum DispatchStatus {
+  PLANNING
+  SCHEDULED
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+enum VehicleType {
+  TRUCK
+  VAN
+  REFRIGERATED
+  FLATBED
+}
+
+enum PODStatus {
+  PENDING
+  UPLOADED
+  VERIFIED
+  REJECTED
+}
+```
 ```
 
 ### 第二阶段：核心业务API（第1-2周）
@@ -352,6 +502,19 @@ export const graph = workflow.compile();
 #### 5.1 订单表格组件
 ```typescript
 // components/generative-ui/OrderTable.tsx
+'use client';
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
 interface OrderTableProps {
   orders: Order[];
   onOrderClick?: (orderId: string) => void;
@@ -359,35 +522,47 @@ interface OrderTableProps {
 
 export function OrderTable({ orders, onOrderClick }: OrderTableProps) {
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead>
-          <tr>
-            <th>订单号</th>
-            <th>客户</th>
-            <th>路线</th>
-            <th>状态</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>订单号</TableHead>
+            <TableHead>客户</TableHead>
+            <TableHead>路线</TableHead>
+            <TableHead>状态</TableHead>
+            <TableHead>操作</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {orders.map(order => (
-            <tr key={order.id} onClick={() => onOrderClick?.(order.id)}>
-              <td>{order.id}</td>
-              <td>{order.customerName}</td>
-              <td>{order.origin.address} → {order.destination.address}</td>
-              <td>
-                <OrderStatusBadge status={order.status} />
-              </td>
-              <td>
-                <button className="text-blue-600 hover:text-blue-900">
+            <TableRow
+              key={order.id}
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => onOrderClick?.(order.id)}
+            >
+              <TableCell className="font-medium">{order.orderId}</TableCell>
+              <TableCell>{order.customer.name}</TableCell>
+              <TableCell>
+                {order.origin.address} → {order.destination.address}
+              </TableCell>
+              <TableCell>
+                <Badge variant={
+                  order.status === 'DELIVERED' ? 'default' :
+                  order.status === 'IN_TRANSIT' ? 'secondary' :
+                  order.status === 'PENDING' ? 'outline' : 'destructive'
+                }>
+                  {order.status}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <Button variant="ghost" size="sm">
                   查看详情
-                </button>
-              </td>
-            </tr>
+                </Button>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -396,6 +571,19 @@ export function OrderTable({ orders, onOrderClick }: OrderTableProps) {
 #### 5.2 排车计划组件
 ```typescript
 // components/generative-ui/DispatchPlan.tsx
+'use client';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+
 interface DispatchPlanProps {
   orders: Order[];
   vehicle: Vehicle;
@@ -405,35 +593,84 @@ interface DispatchPlanProps {
 
 export function DispatchPlan({ orders, vehicle, route, onConfirm }: DispatchPlanProps) {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold mb-4">排车计划</h3>
+    <Card className="w-full max-w-2xl">
+      <CardHeader>
+        <CardTitle>排车计划</CardTitle>
+        <CardDescription>
+          系统已为您生成最优排车方案，请确认后执行
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">车辆信息</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">车牌号</span>
+                <span className="font-medium">{vehicle.plateNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">类型</span>
+                <Badge variant="outline">{vehicle.type}</Badge>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">司机</span>
+                <span>{vehicle.driverName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">载重</span>
+                <span>{vehicle.capacity}吨</span>
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div>
-          <h4 className="font-medium text-gray-700">车辆信息</h4>
-          <p>{vehicle.type} - {vehicle.driver.name}</p>
-          <p>当前位置: {vehicle.currentLocation.address}</p>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">路线规划</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">总里程</span>
+                <span className="font-medium">{route.distance}km</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">预计时间</span>
+                <span>{route.duration}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">途经点</span>
+                <span>{route.waypoints.length}个</span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
+        <Separator />
+
         <div>
-          <h4 className="font-medium text-gray-700">路线规划</h4>
-          <p>总里程: {route.distance}km</p>
-          <p>预计时间: {route.duration}</p>
+          <h4 className="font-medium mb-3">订单列表 ({orders.length})</h4>
+          <div className="space-y-2">
+            {orders.map(order => (
+              <div key={order.id} className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <span className="font-medium">{order.orderId}</span>
+                  <p className="text-sm text-muted-foreground">
+                    {order.origin.address} → {order.destination.address}
+                  </p>
+                </div>
+                <Badge variant="secondary">{order.weight}kg</Badge>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="mb-6">
-        <h4 className="font-medium text-gray-700 mb-2">订单列表</h4>
-        <OrderList orders={orders} />
-      </div>
-
-      <button
-        onClick={onConfirm}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-      >
-        确认发车
-      </button>
-    </div>
+        <Button onClick={onConfirm} className="w-full" size="lg">
+          确认发车
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 ```
