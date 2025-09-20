@@ -2,7 +2,7 @@
 title: TMS NL-Ops 演示系统实现史诗
 status: backlog
 created: 2025-09-20T04:00:00Z
-updated: 2025-09-20T04:13:44Z
+updated: 2025-09-20T04:15:00Z
 version: 1.0
 ---
 
@@ -32,6 +32,11 @@ version: 1.0
 3. **API分层**: 业务API与AI网关分离
 4. **组件化**: 可复用的生成式UI组件库
 
+### 数据库兼容性
+- **PostgreSQL 17.x**: 远程数据库版本，使用对应的驱动版本
+- **Prisma 6.1.0**: 最新版本，完全支持PostgreSQL 17
+- **Node.js驱动**: pg@8.13.1，稳定支持PostgreSQL 17
+
 ### LangGraph v1 新特性
 - **增强的流式处理**: 支持更细粒度的流式控制和调试
 - **改进的状态管理**: 更灵活的状态定义和更新机制
@@ -48,7 +53,7 @@ version: 1.0
 - 配置TypeScript、Tailwind CSS和shadcn/ui
 - 安装核心依赖：
   ```bash
-  npm install @langchain/langgraph@1.0.0 @langchain/core@0.3.0 @ai-sdk/react@4.0.0 @ai-sdk/openai@1.0.0 openai@4.50.0 pg@8.13.0 @types/pg@8.11.0 prisma@6.0.0
+  npm install @langchain/langgraph@1.0.0 @langchain/core@0.3.0 @ai-sdk/react@4.0.0 @ai-sdk/openai@1.0.0 openai@4.50.0 pg@8.13.1 @types/pg@8.11.6 prisma@6.1.0
   ```
 - 初始化shadcn/ui v2：
   ```bash
