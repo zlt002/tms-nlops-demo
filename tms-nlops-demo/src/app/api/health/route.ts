@@ -9,20 +9,26 @@ export async function GET() {
       return NextResponse.json({
         status: 'ok',
         message: 'Database connection is healthy',
-        database: healthStatus.database
+        database: healthStatus.database,
       })
     } else {
-      return NextResponse.json({
-        status: 'error',
-        message: 'Database connection failed',
-        error: healthStatus.error
-      }, { status: 500 })
+      return NextResponse.json(
+        {
+          status: 'error',
+          message: 'Database connection failed',
+          error: healthStatus.error,
+        },
+        { status: 500 }
+      )
     }
   } catch (error) {
-    return NextResponse.json({
-      status: 'error',
-      message: 'Database health check failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        status: 'error',
+        message: 'Database health check failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
   }
 }

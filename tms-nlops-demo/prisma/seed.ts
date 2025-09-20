@@ -13,29 +13,29 @@ async function main() {
         value: { value: 'TMS NL-Ops Demo' },
         description: '应用程序名称',
         category: 'app',
-        isPublic: true
+        isPublic: true,
       },
       {
         key: 'app_version',
         value: { value: '1.0.0' },
         description: '应用程序版本',
         category: 'app',
-        isPublic: true
+        isPublic: true,
       },
       {
         key: 'openai_model',
         value: { value: 'gpt-4' },
         description: 'OpenAI模型名称',
-        category: 'ai'
+        category: 'ai',
       },
       {
         key: 'max_order_weight',
         value: { value: 50000 },
         description: '最大订单重量(kg)',
-        category: 'business'
-      }
+        category: 'business',
+      },
     ],
-    skipDuplicates: true
+    skipDuplicates: true,
   })
 
   console.log('系统配置创建完成')
@@ -52,13 +52,20 @@ async function main() {
           { name: 'destination', type: 'string', required: true, description: '目的地' },
           { name: 'weight', type: 'number', required: true, description: '货物重量' },
           { name: 'pickup_time', type: 'date', required: true, description: '取货时间' },
-          { name: 'delivery_time', type: 'date', required: true, description: '送达时间' }
+          { name: 'delivery_time', type: 'date', required: true, description: '送达时间' },
         ]),
-        requiredParameters: ['customer_name', 'origin', 'destination', 'weight', 'pickup_time', 'delivery_time'],
+        requiredParameters: [
+          'customer_name',
+          'origin',
+          'destination',
+          'weight',
+          'pickup_time',
+          'delivery_time',
+        ],
         examples: JSON.stringify([
           '创建一个从北京到上海的订单，重量10吨，明天取货，后天送达',
-          '我要从广州发5吨货到深圳，今天下午取货，明天上午送达'
-        ])
+          '我要从广州发5吨货到深圳，今天下午取货，明天上午送达',
+        ]),
       },
       {
         name: 'update_order',
@@ -67,41 +74,32 @@ async function main() {
           { name: 'order_id', type: 'string', required: true, description: '订单ID' },
           { name: 'status', type: 'string', required: false, description: '订单状态' },
           { name: 'weight', type: 'number', required: false, description: '货物重量' },
-          { name: 'pickup_time', type: 'date', required: false, description: '取货时间' }
+          { name: 'pickup_time', type: 'date', required: false, description: '取货时间' },
         ]),
         requiredParameters: ['order_id'],
-        examples: JSON.stringify([
-          '更新订单123的状态为已确认',
-          '修改订单456的重量为15吨'
-        ])
+        examples: JSON.stringify(['更新订单123的状态为已确认', '修改订单456的重量为15吨']),
       },
       {
         name: 'track_order',
         description: '查询订单状态',
         parameters: JSON.stringify([
-          { name: 'order_id', type: 'string', required: true, description: '订单ID' }
+          { name: 'order_id', type: 'string', required: true, description: '订单ID' },
         ]),
         requiredParameters: ['order_id'],
-        examples: JSON.stringify([
-          '查询订单123的当前状态',
-          '订单456到哪里了？'
-        ])
+        examples: JSON.stringify(['查询订单123的当前状态', '订单456到哪里了？']),
       },
       {
         name: 'assign_vehicle',
         description: '分配车辆到订单',
         parameters: JSON.stringify([
           { name: 'order_id', type: 'string', required: true, description: '订单ID' },
-          { name: 'vehicle_id', type: 'string', required: true, description: '车辆ID' }
+          { name: 'vehicle_id', type: 'string', required: true, description: '车辆ID' },
         ]),
         requiredParameters: ['order_id', 'vehicle_id'],
-        examples: JSON.stringify([
-          '给订单123分配车辆456',
-          '安排车辆788处理订单999'
-        ])
-      }
+        examples: JSON.stringify(['给订单123分配车辆456', '安排车辆788处理订单999']),
+      },
     ],
-    skipDuplicates: true
+    skipDuplicates: true,
   })
 
   console.log('意图定义创建完成')
@@ -116,7 +114,7 @@ async function main() {
         email: 'zhang@abc-logistics.com',
         address: '北京市朝阳区建国路1号',
         company: 'ABC物流有限公司',
-        creditLimit: 1000000
+        creditLimit: 1000000,
       },
       {
         name: 'XYZ贸易集团',
@@ -125,10 +123,10 @@ async function main() {
         email: 'li@xyz-trade.com',
         address: '上海市浦东新区陆家嘴100号',
         company: 'XYZ贸易集团有限公司',
-        creditLimit: 2000000
-      }
+        creditLimit: 2000000,
+      },
     ],
-    skipDuplicates: true
+    skipDuplicates: true,
   })
 
   console.log('示例客户创建完成')
@@ -139,20 +137,20 @@ async function main() {
       {
         email: 'admin@example.com',
         name: '系统管理员',
-        role: 'ADMIN'
+        role: 'ADMIN',
       },
       {
         email: 'driver1@example.com',
         name: '王司机',
-        role: 'DRIVER'
+        role: 'DRIVER',
       },
       {
         email: 'manager@example.com',
         name: '刘经理',
-        role: 'MANAGER'
-      }
+        role: 'MANAGER',
+      },
     ],
-    skipDuplicates: true
+    skipDuplicates: true,
   })
 
   console.log('示例用户创建完成')
@@ -169,17 +167,17 @@ async function main() {
         type: 'TRUCK',
         capacity: 20000,
         driverId: driverUser?.id || '',
-        status: 'AVAILABLE'
+        status: 'AVAILABLE',
       },
       {
         licensePlate: '京B67890',
         type: 'VAN',
         capacity: 5000,
         driverId: driverUser?.id || '',
-        status: 'AVAILABLE'
-      }
+        status: 'AVAILABLE',
+      },
     ],
-    skipDuplicates: true
+    skipDuplicates: true,
   })
 
   console.log('示例车辆创建完成')
@@ -203,8 +201,8 @@ async function main() {
         pickupTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // 明天
         deliveryTime: new Date(Date.now() + 48 * 60 * 60 * 1000), // 后天
         specialInstructions: '需要冷藏运输',
-        assignedVehicleId: vehicle1.id
-      }
+        assignedVehicleId: vehicle1.id,
+      },
     })
 
     // 创建排车记录
@@ -215,8 +213,8 @@ async function main() {
         plannedDeparture: new Date(Date.now() + 24 * 60 * 60 * 1000),
         plannedArrival: new Date(Date.now() + 48 * 60 * 60 * 1000),
         status: 'PLANNED',
-        route: ['北京市朝阳区', '天津市', '济南市', '上海市浦东新区']
-      }
+        route: ['北京市朝阳区', '天津市', '济南市', '上海市浦东新区'],
+      },
     })
 
     console.log('示例订单创建完成')
@@ -226,7 +224,7 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error(e)
     process.exit(1)
   })

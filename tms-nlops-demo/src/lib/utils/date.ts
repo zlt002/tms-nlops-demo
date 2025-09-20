@@ -10,7 +10,7 @@ export const formatRelativeTime = (date: Date | string) => {
   const dateObj = typeof date === 'string' ? parseISO(date) : date
   return formatDistanceToNow(dateObj, {
     addSuffix: true,
-    locale: zhCN
+    locale: zhCN,
   })
 }
 
@@ -28,5 +28,5 @@ export const formatDateTime = {
   short: (date: Date | string) => formatDate(date, 'MM-dd HH:mm'),
   long: (date: Date | string) => formatDate(date, 'yyyy-MM-dd HH:mm:ss'),
   date: (date: Date | string) => formatDate(date, 'yyyy-MM-dd'),
-  time: (date: Date | string) => formatDate(date, 'HH:mm:ss')
+  time: (date: Date | string) => formatDate(date, 'HH:mm:ss'),
 }

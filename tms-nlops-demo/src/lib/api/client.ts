@@ -8,12 +8,12 @@ export const apiClient = axios.create({
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 })
 
 // 请求拦截器
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     // 从store获取token
     const userStore = useUserStore.getState()
     if (userStore.user?.token) {
@@ -21,17 +21,17 @@ apiClient.interceptors.request.use(
     }
     return config
   },
-  (error) => {
+  error => {
     return Promise.reject(error)
   }
 )
 
 // 响应拦截器
 apiClient.interceptors.response.use(
-  (response) => {
+  response => {
     return response
   },
-  (error) => {
+  error => {
     if (error.response?.status === 401) {
       // 未授权，清除用户状态
       useUserStore.getState().logout()
@@ -50,7 +50,7 @@ export const api = {
     update: (id: string, data: any) => apiClient.put(`/orders/${id}`, data),
     delete: (id: string) => apiClient.delete(`/orders/${id}`),
     get: (id: string) => apiClient.get(`/orders/${id}`),
-    track: (id: string) => apiClient.get(`/orders/${id}/track`)
+    track: (id: string) => apiClient.get(`/orders/${id}/track`),
   },
 
   // 车辆相关
@@ -59,20 +59,20 @@ export const api = {
     create: (data: any) => apiClient.post('/vehicles', data),
     update: (id: string, data: any) => apiClient.post(`/vehicles/${id}`, data),
     delete: (id: string) => apiClient.delete(`/vehicles/${id}`),
-    get: (id: string) => apiClient.get(`/vehicles/${id}`)
+    get: (id: string) => apiClient.get(`/vehicles/${id}`),
   },
 
   // NL-Ops相关
   nlops: {
     command: (command: string) => apiClient.post('/nlops/command', { command }),
     history: (params?: any) => apiClient.get('/nlops/history', { params }),
-    intents: () => apiClient.get('/nlops/intents')
+    intents: () => apiClient.get('/nlops/intents'),
   },
 
   // 认证相关
   auth: {
     login: (credentials: any) => apiClient.post('/auth/login', credentials),
     logout: () => apiClient.post('/auth/logout'),
-    profile: () => apiClient.get('/auth/profile')
-  }
+    profile: () => apiClient.get('/auth/profile'),
+  },
 }

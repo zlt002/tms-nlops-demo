@@ -12,14 +12,14 @@ interface UserState {
 export const useUserStore = create<UserState>()(
   devtools(
     persist(
-      (set) => ({
+      set => ({
         user: null,
         isAuthenticated: false,
-        setUser: (user) => set({ user, isAuthenticated: true }),
-        logout: () => set({ user: null, isAuthenticated: false })
+        setUser: user => set({ user, isAuthenticated: true }),
+        logout: () => set({ user: null, isAuthenticated: false }),
       }),
       {
-        name: 'user-storage'
+        name: 'user-storage',
       }
     )
   )
@@ -37,21 +37,19 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>()(
-  devtools(
-    (set) => ({
-      sidebarOpen: true,
-      theme: 'light',
-      notifications: [],
-      toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-      setTheme: (theme) => set({ theme }),
-      addNotification: (notification) =>
-        set((state) => ({
-          notifications: [...state.notifications, { ...notification, id: Date.now().toString() }]
-        })),
-      removeNotification: (id) =>
-        set((state) => ({
-          notifications: state.notifications.filter(n => n.id !== id)
-        }))
-    })
-  )
+  devtools(set => ({
+    sidebarOpen: true,
+    theme: 'light',
+    notifications: [],
+    toggleSidebar: () => set(state => ({ sidebarOpen: !state.sidebarOpen })),
+    setTheme: theme => set({ theme }),
+    addNotification: notification =>
+      set(state => ({
+        notifications: [...state.notifications, { ...notification, id: Date.now().toString() }],
+      })),
+    removeNotification: id =>
+      set(state => ({
+        notifications: state.notifications.filter(n => n.id !== id),
+      })),
+  }))
 )

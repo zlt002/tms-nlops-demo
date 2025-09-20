@@ -11,18 +11,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           queries: {
             staleTime: 60 * 1000, // 1 minute
             refetchOnWindowFocus: false,
-            retry: (failureCount) => {
+            retry: failureCount => {
               if (failureCount >= 3) return false
               return true
-            }
-          }
-        }
+            },
+          },
+        },
       })
   )
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }

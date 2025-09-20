@@ -9,7 +9,9 @@ interface HeaderProps {
 
 export function Header({ className }: HeaderProps) {
   return (
-    <header className={cn('flex h-16 items-center justify-between border-b bg-white px-6', className)}>
+    <header
+      className={cn('flex h-16 items-center justify-between border-b bg-white px-6', className)}
+    >
       <div className="flex items-center space-x-4">
         <h2 className="text-lg font-semibold">运输管理系统</h2>
       </div>

@@ -1,12 +1,14 @@
 import { prisma, OrderStatus, VehicleStatus, ScheduleStatus, VehicleType } from './prisma'
 
 export class OrderQueries {
-  static async findAll(filters: {
-    status?: OrderStatus
-    customerId?: string
-    page?: number
-    limit?: number
-  } = {}) {
+  static async findAll(
+    filters: {
+      status?: OrderStatus
+      customerId?: string
+      page?: number
+      limit?: number
+    } = {}
+  ) {
     const { status, customerId, page = 1, limit = 20 } = filters
     const skip = (page - 1) * limit
 
@@ -14,29 +16,29 @@ export class OrderQueries {
       prisma.order.findMany({
         where: {
           status,
-          customerId
+          customerId,
         },
         include: {
           customer: true,
           assignedVehicle: {
             include: {
-              driver: true
-            }
+              driver: true,
+            },
           },
-          schedules: true
+          schedules: true,
         },
         skip,
         take: limit,
         orderBy: {
-          createdAt: 'desc'
-        }
+          createdAt: 'desc',
+        },
       }),
       prisma.order.count({
         where: {
           status,
-          customerId
-        }
-      })
+          customerId,
+        },
+      }),
     ])
 
     return {
@@ -45,8 +47,8 @@ export class OrderQueries {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     }
   }
 
@@ -57,25 +59,25 @@ export class OrderQueries {
         customer: true,
         assignedVehicle: {
           include: {
-            driver: true
-          }
+            driver: true,
+          },
         },
         schedules: {
           include: {
             vehicle: {
               include: {
-                driver: true
-              }
-            }
-          }
+                driver: true,
+              },
+            },
+          },
         },
         trackings: {
           orderBy: {
-            timestamp: 'desc'
-          }
+            timestamp: 'desc',
+          },
         },
-        receipts: true
-      }
+        receipts: true,
+      },
     })
   }
 
@@ -97,22 +99,25 @@ export class OrderQueries {
       data: {
         orderNumber,
         ...data,
-        status: OrderStatus.PENDING
+        status: OrderStatus.PENDING,
       },
       include: {
-        customer: true
-      }
+        customer: true,
+      },
     })
   }
 
-  static async update(id: string, data: {
-    status?: OrderStatus
-    weight?: number
-    pickupTime?: Date
-    deliveryTime?: Date
-    assignedVehicleId?: string
-    specialInstructions?: string
-  }) {
+  static async update(
+    id: string,
+    data: {
+      status?: OrderStatus
+      weight?: number
+      pickupTime?: Date
+      deliveryTime?: Date
+      assignedVehicleId?: string
+      specialInstructions?: string
+    }
+  ) {
     return prisma.order.update({
       where: { id },
       data,
@@ -120,37 +125,39 @@ export class OrderQueries {
         customer: true,
         assignedVehicle: {
           include: {
-            driver: true
-          }
-        }
-      }
+            driver: true,
+          },
+        },
+      },
     })
   }
 }
 
 export class VehicleQueries {
-  static async findAvailable(filters: {
-    type?: string
-    minCapacity?: number
-  } = {}) {
+  static async findAvailable(
+    filters: {
+      type?: string
+      minCapacity?: number
+    } = {}
+  ) {
     const { type, minCapacity } = filters
 
     return prisma.vehicle.findMany({
       where: {
         status: VehicleStatus.AVAILABLE,
         ...(type && { type: type as VehicleType }),
-        ...(minCapacity && { capacity: { gte: minCapacity } })
+        ...(minCapacity && { capacity: { gte: minCapacity } }),
       },
       include: {
         driver: true,
         schedules: {
           where: {
             status: {
-              in: [ScheduleStatus.PLANNED, ScheduleStatus.IN_PROGRESS]
-            }
-          }
-        }
-      }
+              in: [ScheduleStatus.PLANNED, ScheduleStatus.IN_PROGRESS],
+            },
+          },
+        },
+      },
     })
   }
 
@@ -161,10 +168,10 @@ export class VehicleQueries {
         driver: true,
         schedules: {
           include: {
-            order: true
-          }
-        }
-      }
+            order: true,
+          },
+        },
+      },
     })
   }
 
@@ -173,8 +180,8 @@ export class VehicleQueries {
       where: { id },
       data: { status },
       include: {
-        driver: true
-      }
+        driver: true,
+      },
     })
   }
 }
@@ -190,16 +197,16 @@ export class ScheduleQueries {
     return prisma.schedule.create({
       data: {
         ...data,
-        status: ScheduleStatus.PLANNED
+        status: ScheduleStatus.PLANNED,
       },
       include: {
         order: true,
         vehicle: {
           include: {
-            driver: true
-          }
-        }
-      }
+            driver: true,
+          },
+        },
+      },
     })
   }
 
@@ -220,8 +227,8 @@ export class ScheduleQueries {
       data: updateData,
       include: {
         order: true,
-        vehicle: true
-      }
+        vehicle: true,
+      },
     })
   }
 }
@@ -238,11 +245,11 @@ export class TrackingQueries {
     return prisma.tracking.create({
       data: {
         ...data,
-        status: data.status as 'IN_TRANSIT' | 'PICKUP' | 'DELIVERY' | 'COMPLETED' || 'IN_TRANSIT'
+        status: (data.status as 'IN_TRANSIT' | 'PICKUP' | 'DELIVERY' | 'COMPLETED') || 'IN_TRANSIT',
       },
       include: {
-        order: true
-      }
+        order: true,
+      },
     })
   }
 
@@ -250,27 +257,23 @@ export class TrackingQueries {
     return prisma.tracking.findMany({
       where: { orderId },
       orderBy: {
-        timestamp: 'desc'
-      }
+        timestamp: 'desc',
+      },
     })
   }
 }
 
 export class ReceiptQueries {
-  static async create(data: {
-    orderId: string
-    imageUrl: string
-    notes?: string
-  }) {
+  static async create(data: { orderId: string; imageUrl: string; notes?: string }) {
     return prisma.receipt.create({
       data: {
         ...data,
-        status: 'UPLOADED'
+        status: 'UPLOADED',
       },
       include: {
         order: true,
-        verifier: true
-      }
+        verifier: true,
+      },
     })
   }
 
@@ -280,37 +283,39 @@ export class ReceiptQueries {
       data: {
         status,
         verifiedBy: verifiedById,
-        verifiedAt: new Date()
+        verifiedAt: new Date(),
       },
       include: {
         order: true,
-        verifier: true
-      }
+        verifier: true,
+      },
     })
   }
 }
 
 export class NLCommandQueries {
-  static async getCommandHistory(filters: {
-    userId?: string
-    intent?: string
-    limit?: number
-  } = {}) {
+  static async getCommandHistory(
+    filters: {
+      userId?: string
+      intent?: string
+      limit?: number
+    } = {}
+  ) {
     const { userId, intent, limit = 50 } = filters
 
     return prisma.nLCommand.findMany({
       where: {
         userId,
-        intent
+        intent,
       },
       include: {
         user: true,
-        order: true
+        order: true,
       },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc',
       },
-      take: limit
+      take: limit,
     })
   }
 
@@ -331,12 +336,12 @@ export class NLCommandQueries {
         status: 'PENDING' as const,
         executed: false,
         ...(data.userId && { userId: data.userId }),
-        ...(data.orderId && { orderId: data.orderId })
+        ...(data.orderId && { orderId: data.orderId }),
       },
       include: {
         user: true,
-        order: true
-      }
+        order: true,
+      },
     })
   }
 
@@ -348,8 +353,8 @@ export class NLCommandQueries {
         executedAt: new Date(),
         status: error ? 'FAILED' : 'COMPLETED',
         result: result as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        error
-      }
+        error,
+      },
     })
   }
 }
@@ -357,13 +362,13 @@ export class NLCommandQueries {
 export class IntentQueries {
   static async findActive() {
     return prisma.intent.findMany({
-      where: { isActive: true }
+      where: { isActive: true },
     })
   }
 
   static async findByName(name: string) {
     return prisma.intent.findUnique({
-      where: { name }
+      where: { name },
     })
   }
 }

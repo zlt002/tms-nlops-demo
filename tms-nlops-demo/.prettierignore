@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Prisma
+prisma/generated/
+prisma/migrations/
+
+# Environment files
+.env*
+
+# Logs
+*.log
+
+# Cache
+.cache/
+.temp/
+
+# Scripts
+scripts/
+
+# Git
+.git/

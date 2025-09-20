@@ -46,7 +46,7 @@ export const formatFileSize = (bytes: number): string => {
 export const formatCurrency = (amount: number, currency = 'CNY'): string => {
   return new Intl.NumberFormat('zh-CN', {
     style: 'currency',
-    currency
+    currency,
   }).format(amount)
 }
 

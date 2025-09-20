@@ -22,7 +22,7 @@ export function Sidebar() {
         <h1 className="text-xl font-semibold">TMS NL-Ops</h1>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => {
+        {navigation.map(item => {
           const isActive = pathname === item.href
           return (
             <Link
@@ -30,9 +30,7 @@ export function Sidebar() {
               href={item.href}
               className={cn(
                 'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-gray-700 hover:bg-gray-100'
+                isActive ? 'bg-primary text-primary-foreground' : 'text-gray-700 hover:bg-gray-100'
               )}
             >
               <span className="mr-3">{item.icon}</span>

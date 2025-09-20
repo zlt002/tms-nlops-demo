@@ -1,0 +1,23 @@
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-typescript-next",
+    "prisma.prisma",
+    "ms-vscode.vscode-json",
+    "editorconfig.editorconfig",
+    "usernamehw.errorlens",
+    "ms-vscode.vscode-auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.auto-close-tag",
+    "formulahendry.auto-complete-tag",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-chinese",
+    "wix.vscode-import-cost",
+    "yoavbls.pretty-ts-errors",
+    "pmneo.tsimporter",
+    "christian-kohler.npm-intellisense"
+  ]
+}

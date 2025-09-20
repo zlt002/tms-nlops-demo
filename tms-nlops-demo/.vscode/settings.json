@@ -1,0 +1,65 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/out": true,
+    "**/dist": true,
+    "**/build": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/out": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/prisma/generated": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/out/**": true
+  },
+  "emmet.includeLanguages": {
+    "typescript": "typescriptreact",
+    "javascript": "javascriptreact"
+  },
+  "tailwindCSS.includeLanguages": {
+    "typescript": "typescriptreact",
+    "javascript": "javascriptreact"
+  },
+  "tailwindCSS.experimental.classRegex": ["tw`([^`]*)`", "tw\\.`([^`]*)`", "tw=\\{([^}]*)\\}"],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "json",
+    "jsonc",
+    "markdown"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "npm.enableScriptExplorer": true,
+  "npm.packageManager": "npm",
+  "debug.node.autoAttach": "on",
+  "terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe"
+}

@@ -24,12 +24,12 @@ export class DatabaseConnection {
       `
       return {
         status: 'healthy',
-        database: result
+        database: result,
       }
     } catch (error) {
       return {
         status: 'unhealthy',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       }
     }
   }
