@@ -1,7 +1,7 @@
 ---
 created: 2025-09-20T03:46:14Z
-last_updated: 2025-09-20T05:52:55Z
-version: 1.2
+last_updated: 2025-09-20T06:44:57Z
+version: 1.3
 author: Claude Code PM System
 ---
 
@@ -24,28 +24,57 @@ F:\code1\tms\
 │   ├── src/                     # 源代码
 │   │   ├── app/                 # Next.js App Router
 │   │   │   ├── api/             # API 路由
-│   │   │   │   ├── auth/        # 认证相关
-│   │   │   │   ├── orders/      # 订单管理
-│   │   │   │   ├── vehicles/    # 车辆管理
-│   │   │   │   ├── nlops/       # NL-Ops 功能
-│   │   │   │   └── health/      # 健康检查
+│   │   │   │   ├── auth/        # 认证相关（登录、登出、用户信息）
+│   │   │   │   ├── orders/      # 订单管理 CRUD
+│   │   │   │   ├── vehicles/    # 车辆管理 CRUD
+│   │   │   │   ├── drivers/     # 司机管理 CRUD
+│   │   │   │   ├── customers/   # 客户管理 CRUD
+│   │   │   │   ├── tracking/    # 实时跟踪 API
+│   │   │   │   ├── pod/         # POD管理 API
+│   │   │   │   ├── nlops/       # NL-Ops 命令和历史
+│   │   │   │   ├── health/      # 健康检查（live、ready）
+│   │   │   │   └── docs/        # API文档
+│   │   │   ├── dashboard/          # 仪表板页面
+│   │   │   │   ├── page.tsx         # 主仪表板
+│   │   │   │   ├── orders/         # 订单管理界面
+│   │   │   │   ├── customers/      # 客户管理界面
+│   │   │   │   ├── vehicles/       # 车辆管理界面
+│   │   │   │   ├── drivers/        # 司机管理界面
+│   │   │   │   ├── dispatch/       # 调度管理界面
+│   │   │   │   ├── tracking/       # 跟踪界面
+│   │   │   │   ├── pod/            # POD管理界面
+│   │   │   │   ├── documents/      # 文档管理界面
+│   │   │   │   ├── nlops/          # NL-Ops界面
+│   │   │   │   └── settings/       # 系统设置界面
 │   │   │   ├── layout.tsx       # 根布局
 │   │   │   ├── page.tsx         # 首页
-│   │   │   └── providers.tsx    # React Query Provider
+│   │   │   ├── providers.tsx    # React Query Provider
+│   │   │   └── globals.css      # 全局样式
 │   │   ├── components/          # React 组件
-│   │   │   ├── layout/          # 布局组件
-│   │   │   └── ui/              # shadcn/ui 组件
+│   │   │   ├── layout/          # 布局组件（Header、Sidebar、MainLayout）
+│   │   │   └── ui/              # shadcn/ui 组件（Button、Card、Table、Dialog等）
 │   │   ├── lib/                 # 工具库
-│   │   │   ├── api/             # API 客户端
-│   │   │   ├── db/              # 数据库相关
-│   │   │   ├── utils/           # 工具函数
-│   │   │   ├── validators/      # 数据验证
-│   │   │   └── store/           # 状态管理
+│   │   │   ├── api/             # API 客户端和中间件
+│   │   │   ├── db/              # 数据库连接和查询
+│   │   │   ├── health/          # 健康检查工具
+│   │   │   ├── middleware/      # 中间件（认证、验证等）
+│   │   │   ├── openapi/         # OpenAPI 文档生成
+│   │   │   ├── utils/           # 工具函数（日期、帮助函数等）
+│   │   │   ├── validators/      # 数据验证器（订单、POD、跟踪等）
+│   │   │   └── store/           # 状态管理（ Zustand store）
+│   │   ├── services/            # 业务服务层
+│   │   │   ├── podService.ts    # POD业务逻辑
+│   │   │   └── trackingService.ts # 跟踪业务逻辑
 │   │   └── types/               # TypeScript 类型定义
 │   ├── prisma/                  # Prisma 数据库配置
+│   │   ├── schema.prisma        # 数据库模型定义
+│   │   └── seed.ts              # 数据库种子脚本
 │   ├── public/                  # 静态资源
 │   ├── scripts/                 # 开发脚本
-│   └── 配置文件...
+│   ├── __tests__/               # 测试目录
+│   ├── jest.config.js           # Jest测试配置
+│   ├── jest.setup.js            # Jest设置文件
+│   └── 配置文件...              # eslint、prettier、husky等
 ├── .gitignore                   # Git 忽略规则
 ├── AGENTS.md                   # 代理文档
 ├── CLAUDE.md                   # 项目特定的 Claude 指令

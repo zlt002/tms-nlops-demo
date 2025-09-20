@@ -1,7 +1,7 @@
 ---
 created: 2025-09-20T03:46:14Z
-last_updated: 2025-09-20T05:52:55Z
-version: 1.3
+last_updated: 2025-09-20T06:44:57Z
+version: 1.4
 author: Claude Code PM System
 ---
 
@@ -39,7 +39,8 @@ author: Claude Code PM System
 - **CSS框架**: Tailwind CSS v4 ✅
 - **状态管理**: Zustand + React Query ✅
 - **API客户端**: Axios + Zod验证 ✅
-- **开发工具**: ESLint + Prettier + Husky ✅
+- **开发工具**: ESLint + Prettier + Husky + Commitlint ✅
+- **测试框架**: Jest + React Testing Library ✅
 
 #### 数据库配置
 - **主机**: 47.115.43.94
