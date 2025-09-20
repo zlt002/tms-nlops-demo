@@ -1,7 +1,7 @@
 ---
 created: 2025-09-20T03:46:14Z
-last_updated: 2025-09-20T04:18:18Z
-version: 1.1
+last_updated: 2025-09-20T05:52:55Z
+version: 1.3
 author: Claude Code PM System
 ---
 
@@ -18,7 +18,8 @@ author: Claude Code PM System
 - **语言**: 英语（主要），中文（文档用）
 - **CLI 工具**: Claude Code
 - **版本控制**: Git（已初始化）
-- **远程平台**: GitHub（计划中）
+- **远程平台**: GitHub（已配置：https://github.com/zlt002/tms-nlops-demo）
+- **开发工作树**: ../epic-tms-nlops-demo（用于并行开发）
 
 ### 项目依赖
 
@@ -27,14 +28,18 @@ author: Claude Code PM System
 - **gh-sub-issue 扩展** - 用于父子问题关系
 - **PowerShell/Bash** - 用于脚本执行
 
-#### 计划的技术栈 (TMS NL-Ops 项目)
-- **前端**: Next.js 15+ (App Router)
-- **UI**: React 19 + shadcn/ui v2
-- **AI编排**: LangGraph.js v1.0.0
-- **AI交互**: Vercel AI SDK v4.0.0
-- **数据库**: PostgreSQL 17.x
-- **ORM**: Prisma 6.1.0
-- **语言**: TypeScript 5.5+
+#### 已配置的技术栈 (TMS NL-Ops 项目)
+- **前端**: Next.js 15+ (App Router) ✅
+- **UI**: React 18 + shadcn/ui v2 ✅
+- **AI编排**: LangGraph.js v1.0.0 (计划中)
+- **AI交互**: Vercel AI SDK v4.0.0 (计划中)
+- **数据库**: PostgreSQL 17.x ✅
+- **ORM**: Prisma 5.8.1 ✅
+- **语言**: TypeScript 5.5+ ✅
+- **CSS框架**: Tailwind CSS v4 ✅
+- **状态管理**: Zustand + React Query ✅
+- **API客户端**: Axios + Zod验证 ✅
+- **开发工具**: ESLint + Prettier + Husky ✅
 
 #### 数据库配置
 - **主机**: 47.115.43.94
@@ -53,11 +58,13 @@ author: Claude Code PM System
 - **curl/wget** - 用于下载安装脚本
 - **Claude Code** - 带 PM 系统的 AI 助手
 
-### 开发工具（计划）
-- **Node.js 20+** - JavaScript 运行时
-- **PostgreSQL 客户端** - 数据库连接
-- **Prisma CLI** - 数据库迁移
-- **shadcn CLI** - UI 组件管理
+### 开发工具（已安装）
+- **Node.js 20+** - JavaScript 运行时 ✅
+- **PostgreSQL 客户端** - 数据库连接 ✅
+- **Prisma CLI** - 数据库迁移 ✅
+- **shadcn CLI** - UI 组件管理 ✅
+- **tsx** - TypeScript 执行器 ✅
+- **Docker** - 容器化部署 ✅
 
 ### 文件格式
 - **Markdown (.md)** - 主要文档格式

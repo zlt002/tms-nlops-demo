@@ -1,7 +1,7 @@
 ---
 created: 2025-09-20T03:46:14Z
-last_updated: 2025-09-20T03:51:08Z
-version: 1.0
+last_updated: 2025-09-20T05:52:55Z
+version: 1.2
 author: Claude Code PM System
 ---
 
@@ -104,6 +104,7 @@ author: Claude Code PM System
 - **范围**: 在主题中包含组件或领域
 - **正文**: 需要时详细说明
 - **签名**: AI 贡献包含 co-authored-by
+- **自动化**: 使用 Commitlint 强制约定
 
 示例：
 ```
@@ -196,6 +197,20 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ### 文化考虑
 - **时区**: 时间戳使用 UTC
 - **日期格式**: ISO 8601 标准
+
+## TypeScript 编码规范
+
+### 类型安全
+- **严格模式**: 启用所有严格类型检查
+- **无 any**: 避免使用 any 类型，使用 unknown 替代
+- **接口优先**: 使用 interface 而非 type 定义对象结构
+- **泛型**: 适当使用泛型提高代码复用性
+
+### React/Next.js 约定
+- **函数组件**: 优先使用函数组件和 Hooks
+- **类型定义**: 为所有 props 和 state 定义类型
+- **自定义 Hooks**: 以 use 前缀命名
+- **文件命名**: 组件文件使用 PascalCase.tsx
 - **数字格式**: 区域感知格式化
 - **包容性语言**: 避免文化特定引用
 

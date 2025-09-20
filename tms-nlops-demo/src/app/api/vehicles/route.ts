@@ -1,63 +1,59 @@
-import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/db/prisma'
-import { ApiResponseBuilder, withErrorHandler } from '@/lib/api/response'
-import { createVehicleSchema } from '@/lib/validators'
+import { NextRequest, NextResponse } from 'next/server'
+import { VehicleService } from '@/services/vehicleService'
+import { createVehicleSchema, vehicleQuerySchema } from '@/lib/validators/vehicle'
 
-export const GET = withErrorHandler(async (request: NextRequest) => {
-  const { searchParams } = new URL(request.url)
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    
+    const query = {
+      vehicleType: searchParams.get('vehicleType') || undefined,
+      status: searchParams.get('status') || undefined,
+      driverId: searchParams.get('driverId') || undefined,
+      isActive: searchParams.get('isActive') !== 'false',
+      minMaxLoad: searchParams.get('minMaxLoad') ? parseFloat(searchParams.get('minMaxLoad')!) : undefined,
+      maxMaxLoad: searchParams.get('maxMaxLoad') ? parseFloat(searchParams.get('maxMaxLoad')!) : undefined,
+      search: searchParams.get('search') || undefined,
+      page: parseInt(searchParams.get('page') || '1'),
+      limit: parseInt(searchParams.get('limit') || '20'),
+      sortBy: searchParams.get('sortBy') || 'createdAt',
+      sortOrder: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'
+    }
 
-  const filters = {
-    type: searchParams.get('type'),
-    status: searchParams.get('status'),
-    page: parseInt(searchParams.get('page') || '1'),
-    limit: parseInt(searchParams.get('limit') || '20')
+    const validatedQuery = vehicleQuerySchema.parse(query)
+    const result = await VehicleService.getVehiclesWithStats(validatedQuery)
+
+    return NextResponse.json({
+      success: true,
+      data: result.vehicles,
+      pagination: result.pagination
+    })
+  } catch (error) {
+    console.error('获取车辆列表失败:', error)
+    return NextResponse.json(
+      { error: '获取车辆列表失败', details: error.message },
+      { status: 500 }
+    )
   }
+}
 
-  const vehicles = await prisma.vehicle.findMany({
-    where: {
-      ...(filters.type && { type: filters.type as any }),
-      ...(filters.status && { status: filters.status as any })
-    },
-    include: {
-      driver: true,
-      schedules: true
-    },
-    skip: (filters.page - 1) * filters.limit,
-    take: filters.limit,
-    orderBy: {
-      createdAt: 'desc'
-    }
-  })
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const validatedData = createVehicleSchema.parse(body)
 
-  const total = await prisma.vehicle.count({
-    where: {
-      ...(filters.type && { type: filters.type as any }),
-      ...(filters.status && { status: filters.status as any })
-    }
-  })
+    const vehicle = await VehicleService.createVehicle(validatedData)
 
-  return ApiResponseBuilder.paginated(
-    vehicles,
-    {
-      page: filters.page,
-      limit: filters.limit,
-      total,
-      pages: Math.ceil(total / filters.limit)
-    },
-    '获取车辆列表成功'
-  )
-})
-
-export const POST = withErrorHandler(async (request: NextRequest) => {
-  const body = await request.json()
-  const validatedData = createVehicleSchema.parse(body)
-
-  const vehicle = await prisma.vehicle.create({
-    data: validatedData,
-    include: {
-      driver: true
-    }
-  })
-
-  return ApiResponseBuilder.success(vehicle, '车辆创建成功', 201)
-})
+    return NextResponse.json({
+      success: true,
+      data: vehicle,
+      message: '车辆创建成功'
+    }, { status: 201 })
+  } catch (error) {
+    console.error('创建车辆失败:', error)
+    return NextResponse.json(
+      { error: '创建车辆失败', details: error.message },
+      { status: 500 }
+    )
+  }
+}

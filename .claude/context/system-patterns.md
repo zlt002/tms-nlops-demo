@@ -1,7 +1,7 @@
 ---
 created: 2025-09-20T03:46:14Z
-last_updated: 2025-09-20T03:51:08Z
-version: 1.0
+last_updated: 2025-09-20T05:52:55Z
+version: 1.2
 author: Claude Code PM System
 ---
 
@@ -47,6 +47,20 @@ author: Claude Code PM System
 - **描述**: 多个代理同时工作
 - **实现**: 使用 Git worktrees 进行隔离
 - **优势**: 更快的交付、冲突预防
+- **实践**:
+  - 主仓库保存系统文件
+  - 开发worktree用于具体任务实现
+  - 通过GitHub Issues协调工作
+
+### 依赖管理模式
+- **描述**: 系统化的依赖包管理
+- **实现**: package.json + package-lock.json
+- **优势**: 版本锁定、可重现构建
+
+### 配置即代码模式
+- **描述**: 所有配置都在版本控制中
+- **实现**: ESLint、Prettier、Husky 配置文件
+- **优势**: 团队一致性、自动化检查
 
 ## 数据流模式
 
@@ -64,6 +78,16 @@ PRD 创建 → 实现规划 → 任务分解 → GitHub 同步 → 并行执行
 ### 双向同步流程
 - **本地 → GitHub**: 进度更新、完成状态
 - **GitHub → 本地**: 问题分配、优先级变更
+
+### API 响应模式
+- **描述**: 统一的 API 响应格式
+- **实现**: ApiResponseBuilder 工具类
+- **优势**: 一致的客户端体验、易于错误处理
+
+### 错误处理模式
+- **描述**: 集中化的错误处理机制
+- **实现**: withErrorHandler 包装器
+- **优势**: 统一日志记录、优雅降级
 
 ## 文件组织模式
 

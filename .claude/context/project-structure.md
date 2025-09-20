@@ -1,7 +1,7 @@
 ---
 created: 2025-09-20T03:46:14Z
-last_updated: 2025-09-20T03:51:08Z
-version: 1.0
+last_updated: 2025-09-20T05:52:55Z
+version: 1.2
 author: Claude Code PM System
 ---
 
@@ -14,36 +14,38 @@ F:\code1\tms\
 ├── .claude/                      # Claude Code PM 系统目录
 │   ├── CLAUDE.md                # 系统规则和指令
 │   ├── agents/                  # 专门的 AI 代理定义
-│   │   ├── code-analyzer.md
-│   │   ├── file-analyzer.md
-│   │   ├── parallel-worker.md
-│   │   └── test-runner.md
 │   ├── commands/                # 命令定义
-│   │   ├── code-rabbit.md
-│   │   ├── context/             # 上下文管理命令
-│   │   │   ├── create.md
-│   │   │   ├── prime.md
-│   │   │   └── update.md
-│   │   └── pm/                  # 项目管理命令
-│   │       ├── blocked.md
-│   │       ├── clean.md
-│   │       ├── epic-close.md
-│   │       ├── epic-decompose.md
-│   │       ├── epic-edit.md
-│   │       ├── epic-list.md
-│   │       ├── epic-merge.md
-│   │       ├── epic-oneshot.md
-│   │       ├── epic-refresh.md
-│   │       ├── epic-show.md
-│   │       ├── epic-start-worktree.md
-│   │       └── ... (更多 pm 命令)
 │   ├── context/                 # 项目上下文文件（此目录）
 │   ├── epics/                   # Epic 工作区
 │   ├── prds/                    # 产品需求文档
 │   ├── rules/                   # 额外的规则文件
 │   └── scripts/                 # 实用脚本
-├── a/                           # 开发产物目录
-├── install/                     # 安装脚本
+├── tms-nlops-demo/              # TMS NL-Ops 演示系统项目
+│   ├── src/                     # 源代码
+│   │   ├── app/                 # Next.js App Router
+│   │   │   ├── api/             # API 路由
+│   │   │   │   ├── auth/        # 认证相关
+│   │   │   │   ├── orders/      # 订单管理
+│   │   │   │   ├── vehicles/    # 车辆管理
+│   │   │   │   ├── nlops/       # NL-Ops 功能
+│   │   │   │   └── health/      # 健康检查
+│   │   │   ├── layout.tsx       # 根布局
+│   │   │   ├── page.tsx         # 首页
+│   │   │   └── providers.tsx    # React Query Provider
+│   │   ├── components/          # React 组件
+│   │   │   ├── layout/          # 布局组件
+│   │   │   └── ui/              # shadcn/ui 组件
+│   │   ├── lib/                 # 工具库
+│   │   │   ├── api/             # API 客户端
+│   │   │   ├── db/              # 数据库相关
+│   │   │   ├── utils/           # 工具函数
+│   │   │   ├── validators/      # 数据验证
+│   │   │   └── store/           # 状态管理
+│   │   └── types/               # TypeScript 类型定义
+│   ├── prisma/                  # Prisma 数据库配置
+│   ├── public/                  # 静态资源
+│   ├── scripts/                 # 开发脚本
+│   └── 配置文件...
 ├── .gitignore                   # Git 忽略规则
 ├── AGENTS.md                   # 代理文档
 ├── CLAUDE.md                   # 项目特定的 Claude 指令
@@ -51,7 +53,12 @@ F:\code1\tms\
 ├── LICENSE                     # MIT 许可证
 ├── README.md                   # 主要项目文档
 ├── 大概的思路.md               # 项目思路和想法（中文）
-└── 要演练的方向.md             # 练习方向（中文）
+├── 要演练的方向.md             # 练习方向（中文）
+├── create-tasks.py             # GitHub Issues创建脚本
+├── scripts/                    # 辅助脚本
+│   └── create-all-sub-issues.sh
+├── sub-issues-mapping.md       # GitHub Issues映射
+└── sub-issues-results.md       # Issues创建结果
 ```
 
 ## 关键目录
@@ -109,3 +116,10 @@ F:\code1\tms\
 3. **代理** - 专门的 AI 工作者
 4. **上下文** - 项目状态管理
 5. **工作区** - 隔离的 epic 环境
+
+## 开发工作树
+
+为了支持并行开发，系统使用 Git 工作树：
+- **主仓库**: `F:\code1\tms\` - 包含所有系统文件
+- **开发工作树**: `../epic-tms-nlops-demo` - 用于具体的任务开发
+- **GitHub 集成**: 所有 Issues 和开发进度都在 GitHub 上跟踪
