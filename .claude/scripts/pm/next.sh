@@ -7,7 +7,7 @@ echo "📋 Next Available Tasks"
 echo "======================="
 echo ""
 
-# Find tasks that are open and have no dependencies or whose dependencies are closed
+# Find tasks that are pending and have no dependencies or whose dependencies are completed
 found=0
 
 for epic_dir in .claude/epics/*/; do
@@ -17,16 +17,16 @@ for epic_dir in .claude/epics/*/; do
   for task_file in "$epic_dir"[0-9]*.md; do
     [ -f "$task_file" ] || continue
 
-    # Check if task is open
-    status=$(grep "^status:" "$task_file" | head -1 | sed 's/^status: *//')
-    [ "$status" != "open" ] && [ -n "$status" ] && continue
+    # Check if task is pending
+    status=$(grep "^status:" "$task_file" | head -1 | sed 's/^status: *//' | tr -d '"')
+    [ "$status" != "pending" ] && [ -n "$status" ] && continue
 
     # Check dependencies
     deps=$(grep "^depends_on:" "$task_file" | head -1 | sed 's/^depends_on: *\[//' | sed 's/\]//')
 
     # If no dependencies or empty, task is available
     if [ -z "$deps" ] || [ "$deps" = "depends_on:" ]; then
-      task_name=$(grep "^name:" "$task_file" | head -1 | sed 's/^name: *//')
+      task_name=$(grep "^title:" "$task_file" | head -1 | sed 's/^title: *//' | tr -d '"')
       task_num=$(basename "$task_file" .md)
       parallel=$(grep "^parallel:" "$task_file" | head -1 | sed 's/^parallel: *//')
 
@@ -35,6 +35,35 @@ for epic_dir in .claude/epics/*/; do
       [ "$parallel" = "true" ] && echo "   🔄 Can run in parallel"
       echo ""
       ((found++))
+    else
+      # Check if all dependencies are completed
+      deps_clean=$(echo "$deps" | sed 's/"//g; s/,/ /g')
+      all_completed=true
+      for dep in $deps_clean; do
+        if [ -f "$epic_dir$dep.md" ]; then
+          dep_status=$(grep "^status:" "$epic_dir$dep.md" | head -1 | sed 's/^status: *//' | tr -d '"')
+          if [ "$dep_status" != "completed" ]; then
+            all_completed=false
+            break
+          fi
+        else
+          all_completed=false
+          break
+        fi
+      done
+
+      if [ "$all_completed" = "true" ]; then
+        task_name=$(grep "^title:" "$task_file" | head -1 | sed 's/^title: *//' | tr -d '"')
+        task_num=$(basename "$task_file" .md)
+        parallel=$(grep "^parallel:" "$task_file" | head -1 | sed 's/^parallel: *//')
+
+        echo "✅ Ready: #$task_num - $task_name"
+        echo "   Epic: $epic_name"
+        echo "   Dependencies: $deps_clean"
+        [ "$parallel" = "true" ] && echo "   🔄 Can run in parallel"
+        echo ""
+        ((found++))
+      fi
     fi
   done
 done
