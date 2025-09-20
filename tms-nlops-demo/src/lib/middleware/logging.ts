@@ -65,7 +65,7 @@ export class RequestLogger {
         const duration = performance.now() - startTime
 
         // 记录请求完成
-        this.logRequestEnd(request, response, requestId, traceId, duration, options)
+        await this.logRequestEnd(request, response, requestId, traceId, duration, options)
 
         // 添加响应头
         responseHeaders.forEach((value, key) => {
@@ -134,14 +134,14 @@ export class RequestLogger {
   /**
    * 记录请求完成
    */
-  private static logRequestEnd(
+  private static async logRequestEnd(
     request: NextRequest,
     response: NextResponse,
     requestId: string,
     traceId: string,
     duration: number,
     options: LogOptions
-  ): void {
+  ): Promise<void> {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       method: request.method,

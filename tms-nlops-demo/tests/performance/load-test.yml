@@ -1,0 +1,151 @@
+config:
+  target: 'http://localhost:3000/api'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 30
+      name: "Load test"
+    - duration: 60
+      arrivalRate: 50
+      name: "Peak load"
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+      Authorization: 'Bearer {{ $processEnvironment.TEST_TOKEN }}'
+
+scenarios:
+  - name: "订单管理性能测试"
+    weight: 1
+    requests:
+      - name: "获取订单列表"
+        url: "/orders"
+        method: "GET"
+        qs:
+          page: 1
+          limit: 20
+      - name: "创建订单"
+        url: "/orders"
+        method: "POST"
+        json:
+          customerId: "test-customer"
+          cargoName: "性能测试货物"
+          cargoWeight: 1000
+          cargoVolume: 10
+          originAddress: "北京市朝阳区"
+          destinationAddress: "上海市浦东新区"
+          expectedTime: "2024-12-31T23:59:59Z"
+      - name: "获取订单详情"
+        url: "/orders/{{ orderId }}"
+        method: "GET"
+
+  - name: "客户管理性能测试"
+    weight: 1
+    requests:
+      - name: "获取客户列表"
+        url: "/customers"
+        method: "GET"
+        qs:
+          page: 1
+          limit: 20
+      - name: "创建客户"
+        url: "/customers"
+        method: "POST"
+        json:
+          customerType: "COMPANY"
+          companyName: "性能测试公司"
+          email: "test@performance.com"
+          phone: "13800138000"
+          address: "北京市朝阳区"
+          city: "北京市"
+          province: "北京"
+
+  - name: "车辆管理性能测试"
+    weight: 1
+    requests:
+      - name: "获取车辆列表"
+        url: "/vehicles"
+        method: "GET"
+        qs:
+          page: 1
+          limit: 20
+      - name: "获取可用车辆"
+        url: "/vehicles/available"
+        method: "GET"
+      - name: "更新车辆位置"
+        url: "/vehicles/{{ vehicleId }}/location"
+        method: "PUT"
+        json:
+          latitude: "{{ $randomNumber(39, 40) }}"
+          longitude: "{{ $randomNumber(116, 117) }}"
+          address: "北京市朝阳区"
+
+  - name: "在途跟踪性能测试"
+    weight: 1
+    requests:
+      - name: "上报位置"
+        url: "/tracking/logs"
+        method: "POST"
+        json:
+          shipmentId: "test-shipment"
+          latitude: "{{ $randomNumber(39, 40) }}"
+          longitude: "{{ $randomNumber(116, 117) }}"
+          address: "测试位置"
+          speed: "{{ $randomNumber(0, 120) }}"
+          heading: "{{ $randomNumber(0, 360) }}"
+          timestamp: "{{ $timestamp }}"
+      - name: "获取跟踪路线"
+        url: "/tracking/routes/test-shipment"
+        method: "GET"
+      - name: "获取位置历史"
+        url: "/tracking/logs"
+        method: "GET"
+        qs:
+          shipmentId: "test-shipment"
+          page: 1
+          limit: 50
+
+  - name: "自然语言操作性能测试"
+    weight: 0.5
+    requests:
+      - name: "自然语言命令"
+        url: "/nlops/command"
+        method: "POST"
+        json:
+          command: "查询当前订单状态"
+          context:
+            userIntent: "query_status"
+      - name: "复杂自然语言命令"
+        url: "/nlops/command"
+        method: "POST"
+        json:
+          command: "创建一个从北京到上海的新订单，货物是电子产品，预计明天送达"
+          context:
+            userIntent: "create_order"
+
+  - name: "健康检查性能测试"
+    weight: 0.2
+    requests:
+      - name: "系统健康检查"
+        url: "/health"
+        method: "GET"
+      - name: "存活检查"
+        url: "/health/live"
+        method: "GET"
+      - name: "就绪检查"
+        url: "/health/ready"
+        method: "GET"
+
+  - name: "认证性能测试"
+    weight: 0.1
+    requests:
+      - name: "用户登录"
+        url: "/auth/login"
+        method: "POST"
+        json:
+          email: "performance@test.com"
+          password: "password123"
+      - name: "获取用户信息"
+        url: "/auth/profile"
+        method: "GET"

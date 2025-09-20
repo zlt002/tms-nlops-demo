@@ -1,0 +1,105 @@
+config:
+  target: 'http://localhost:3000/api'
+  phases:
+    - duration: 30
+      arrivalRate: 50
+      name: "Initial load"
+    - duration: 60
+      arrivalRate: 100
+      name: "Heavy load"
+    - duration: 30
+      arrivalRate: 200
+      name: "Peak stress"
+    - duration: 60
+      arrivalRate: 150
+      name: "Sustained load"
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+      Authorization: 'Bearer {{ $processEnvironment.TEST_TOKEN }}'
+
+scenarios:
+  - name: "高并发订单创建"
+    weight: 1
+    requests:
+      - name: "批量创建订单"
+        url: "/orders"
+        method: "POST"
+        json:
+          customerId: "stress-test-customer-{{ $randomNumber(1, 100) }}"
+          cargoName: "压力测试货物-{{ $randomString(10) }}"
+          cargoWeight: "{{ $randomNumber(100, 5000) }}"
+          cargoVolume: "{{ $randomNumber(1, 100) }}"
+          originAddress: "北京市{{ $randomString(5) }}区"
+          destinationAddress: "上海市{{ $randomString(5) }}区"
+          expectedTime: "{{ $dateAdd(1, 'days') }}"
+
+  - name: "高并发位置跟踪"
+    weight: 2
+    requests:
+      - name: "大量位置上报"
+        url: "/tracking/logs"
+        method: "POST"
+        json:
+          shipmentId: "stress-shipment-{{ $randomNumber(1, 50) }}"
+          latitude: "{{ $randomFloat(39.8, 40.2) }}"
+          longitude: "{{ $randomFloat(116.2, 116.8) }}"
+          speed: "{{ $randomNumber(0, 120) }}"
+          heading: "{{ $randomNumber(0, 360) }}"
+          timestamp: "{{ $timestamp }}"
+
+  - name: "高并发查询操作"
+    weight: 1.5
+    requests:
+      - name: "复杂订单查询"
+        url: "/orders"
+        method: "GET"
+        qs:
+          page: "{{ $randomNumber(1, 10) }}"
+          limit: "{{ $randomNumber(10, 100) }}"
+          status: "{{ $randomStringElement(['PENDING', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED']) }}"
+          search: "测试"
+      - name: "客户数据查询"
+        url: "/customers"
+        method: "GET"
+        qs:
+          page: "{{ $randomNumber(1, 5) }}"
+          limit: 50
+          customerType: "{{ $randomStringElement(['INDIVIDUAL', 'COMPANY']) }}"
+
+  - name: "自然语言处理压力测试"
+    weight: 0.5
+    requests:
+      - name: "复杂NLP命令"
+        url: "/nlops/command"
+        method: "POST"
+        json:
+          command: "{{ $randomStringElement([
+            '创建一个紧急订单从北京到广州',
+            '查询所有延迟的订单',
+            '更新车辆位置到深圳市南山区',
+            '检查系统运行状态',
+            '生成今日运输报告'
+          ]) }}"
+          context:
+            userIntent: "{{ $randomStringElement(['create_order', 'query_status', 'update_location', 'system_check', 'generate_report']) }}"
+            priority: "{{ $randomStringElement(['low', 'normal', 'high', 'urgent']) }}"
+
+  - name: "文档生成压力测试"
+    weight: 0.2
+    requests:
+      - name: "API文档生成"
+        url: "/docs"
+        method: "GET"
+        qs:
+          force: "true"
+
+  - name: "混合操作压力测试"
+    weight: 1
+    requests:
+      - name: "随机业务操作"
+        url: "/{{ $randomStringElement(['orders', 'customers', 'vehicles', 'tracking/logs']) }}"
+        method: "{{ $randomStringElement(['GET', 'POST']) }}"
+        capture:
+          - json: "$.data.id"
+            as: "resourceId"
