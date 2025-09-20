@@ -25,6 +25,21 @@ enum OrderStatus {
   IN_TRANSIT
   DELIVERED
   CANCELLED
+  RETURNED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  REFUNDED
 }
 
 enum VehicleType {
@@ -48,10 +63,81 @@ enum ScheduleStatus {
 }
 
 enum TrackingStatus {
-  PICKUP
-  IN_TRANSIT
-  DELIVERY
+  NORMAL
+  SPEEDING
+  IDLING
+  STOPPED
+  OFF_ROUTE
+  LOW_BATTERY
+  NO_SIGNAL
+  EMERGENCY
+  MAINTENANCE
+}
+
+enum TrackingEvent {
+  DEPARTURE
+  ARRIVAL
+  STOP
+  RESUME
+  FUEL_REFILL
+  REST_BREAK
+  DELAY
+  ACCIDENT
+  BREAKDOWN
+  WEATHER_DELAY
+  TRAFFIC_DELAY
+}
+
+enum AlertType {
+  GEOFENCE
+  SPEEDING
+  IDLING
+  DEVIATION
+  DELAY
+  EMERGENCY
+  LOW_FUEL
+  MAINTENANCE
+  SCHEDULE
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+  DISMISSED
+}
+
+enum RouteStatus {
+  PLANNED
+  ACTIVE
   COMPLETED
+  CANCELLED
+  MODIFIED
+}
+
+enum CheckpointType {
+  WAYPOINT
+  STOP
+  REST
+  FUEL
+  CHECK
+  DELIVERY
+}
+
+enum CheckpointStatus {
+  PENDING
+  APPROACHING
+  ARRIVED
+  PASSED
+  MISSED
+  SKIPPED
 }
 
 enum ReceiptStatus {
@@ -66,6 +152,56 @@ enum CommandStatus {
   EXECUTING
   COMPLETED
   FAILED
+}
+
+// POD文档类型枚举
+enum PODDocumentType {
+  PROOF_OF_DELIVERY
+  BILL_OF_LADING
+  INVOICE
+  RECEIPT
+  PHOTOGRAPH
+  CERTIFICATE
+  OTHER
+}
+
+// POD状态枚举
+enum PODStatus {
+  PENDING
+  UPLOADED
+  PROCESSING
+  VERIFIED
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+// 签名类型枚举
+enum SignatureType {
+  WRITTEN
+  DIGITAL
+  STAMP
+  ELECTRONIC
+}
+
+// 签名状态枚举
+enum SignatureStatus {
+  PENDING
+  SIGNED
+  VERIFIED
+  REJECTED
+}
+
+enum CustomerType {
+  COMPANY
+  INDIVIDUAL
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BLACKLISTED
 }
 
 // 用户模型
@@ -89,55 +225,131 @@ model User {
 
 // 客户模型
 model Customer {
-  id             String   @id @default(uuid()) @db.Uuid
-  name           String
-  contactPerson  String
-  phone          String
-  email          String
-  address        String
-  company        String
-  creditLimit    Float?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                String   @id @default(cuid())
+  customerNumber    String   @unique
+  customerType      CustomerType @default(COMPANY)
 
-  // 关系
-  orders Order[]
+  // 公司信息 (仅企业客户)
+  companyName       String?
+  businessLicense   String?
+  taxNumber         String?
+  industry          String?
+
+  // 个人信息 (仅个人客户)
+  firstName         String?
+  lastName          String?
+  idNumber          String?
+
+  // 联系信息
+  email             String   @unique
+  phone             String
+  secondaryPhone    String?
+
+  // 地址信息
+  address           String
+  city              String
+  province          String
+  postalCode        String?
+
+  // 客户状态
+  status            CustomerStatus @default(ACTIVE)
+  creditRating      Int      @default(0)  // 信用评分 0-100
+
+  // 财务信息
+  creditLimit       Float    @default(0)
+  outstandingBalance Float   @default(0)
+  paymentTerms      String?  // 付款条件
+
+  // 业务统计
+  totalOrders       Int      @default(0)
+  totalAmount       Float    @default(0)
+  lastOrderDate     DateTime?
+
+  // 元数据
+  notes             String?
+  tags              String[] // 客户标签
+  createdBy         String
+  updatedBy         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // 关联关系
+  orders            Order[]
+  shipments         Shipment[]
+  contacts          CustomerContact[]
+  documents         Document[]
 
   @@map("customers")
 }
 
+model CustomerContact {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  name       String
+  position   String?
+  phone      String
+  email      String?
+  isPrimary  Boolean  @default(false)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("customer_contacts")
+}
+
 // 订单模型
 model Order {
-  id                 String      @id @default(uuid()) @db.Uuid
-  orderNumber        String      @unique
-  customerId         String      @db.Uuid
-  customer           Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  status             OrderStatus @default(PENDING)
-  origin             String
-  destination        String
-  weight             Float
-  volume             Float
-  value              Float?
-  pickupTime         DateTime
-  deliveryTime       DateTime
-  specialInstructions String?
-  assignedVehicleId  String?     @db.Uuid
-  assignedVehicle    Vehicle?    @relation(fields: [assignedVehicleId], references: [id])
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
+  id          String   @id @default(cuid())
+  orderNumber String   @unique
+  customerId  String   @db.Uuid
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
-  // 关系
-  schedules Schedule[]
-  trackings Tracking[]
-  receipts  Receipt[]
-  nlCommands NLCommand[]
+  // 货物信息
+  cargoName     String
+  cargoWeight   Float
+  cargoVolume   Float
+  cargoValue    Float?
+
+  // 运输信息
+  originAddress      String
+  destinationAddress String
+  originContact      String
+  destinationContact String
+
+  // 时间信息
+  pickupTime    DateTime?
+  deliveryTime  DateTime?
+  expectedTime  DateTime
+
+  // 订单状态
+  status        OrderStatus @default(PENDING)
+  priority      Priority    @default(MEDIUM)
+
+  // 费用信息
+  totalAmount   Float
+  paymentStatus PaymentStatus @default(UNPAID)
+
+  // 元数据
+  notes         String?
+  createdBy     String
+  updatedBy     String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // 关联关系
+  shipments    Shipment[]
+  documents    Document[]
+  trackingLogs TrackingLog[]
 
   @@map("orders")
   @@index([status])
   @@index([customerId])
-  @@index([assignedVehicleId])
-  @@index([pickupTime])
-  @@index([deliveryTime])
+  @@index([priority])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@index([expectedTime])
 }
 
 // 车辆模型
@@ -309,5 +521,92 @@ model AuditLog {
   @@index([entity])
   @@index([entityId])
   @@index([userId])
+  @@index([createdAt])
+}
+
+// 运单模型
+model Shipment {
+  id                String        @id @default(cuid())
+  shipmentNumber    String        @unique
+  customerId        String
+  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orderId           String?
+  order             Order?        @relation(fields: [orderId], references: [id])
+  vehicleId         String?
+  vehicle           Vehicle?      @relation(fields: [vehicleId], references: [id])
+
+  originAddress     String
+  destinationAddress String
+  weight            Float
+  volume            Float
+  value             Float?
+
+  departureTime     DateTime?
+  estimatedArrival  DateTime?
+  actualArrival     DateTime?
+
+  status            String        @default("PLANNED")
+  driverNotes       String?
+  customerNotes     String?
+
+  createdBy         String
+  updatedBy         String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("shipments")
+  @@index([customerId])
+  @@index([orderId])
+  @@index([vehicleId])
+  @@index([status])
+}
+
+// 文档模型
+model Document {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orderId     String?
+  order       Order?   @relation(fields: [orderId], references: [id])
+
+  title       String
+  type        String
+  fileUrl     String
+  fileSize    Int?
+  mimeType    String?
+  description String?
+  tags        String[]
+
+  isPublic    Boolean  @default(false)
+  isRequired  Boolean  @default(false)
+
+  uploadedBy  String
+  approvedBy  String?
+  approvedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("documents")
+  @@index([customerId])
+  @@index([orderId])
+  @@index([type])
+}
+
+// 跟踪日志模型
+model TrackingLog {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  location    String
+  status      String
+  coordinates Json     // {"lat": 0.0, "lng": 0.0}
+  notes       String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+
+  @@map("tracking_logs")
+  @@index([orderId])
+  @@index([status])
   @@index([createdAt])
 }
