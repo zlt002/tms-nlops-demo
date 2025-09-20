@@ -120,9 +120,249 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  name: 'name',
+  role: 'role',
+  avatar: 'avatar',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  contactPerson: 'contactPerson',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  company: 'company',
+  creditLimit: 'creditLimit',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  customerId: 'customerId',
+  status: 'status',
+  origin: 'origin',
+  destination: 'destination',
+  weight: 'weight',
+  volume: 'volume',
+  value: 'value',
+  pickupTime: 'pickupTime',
+  deliveryTime: 'deliveryTime',
+  specialInstructions: 'specialInstructions',
+  assignedVehicleId: 'assignedVehicleId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VehicleScalarFieldEnum = {
+  id: 'id',
+  licensePlate: 'licensePlate',
+  type: 'type',
+  capacity: 'capacity',
+  driverId: 'driverId',
+  status: 'status',
+  currentLocation: 'currentLocation',
+  lastMaintenance: 'lastMaintenance',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ScheduleScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  vehicleId: 'vehicleId',
+  plannedDeparture: 'plannedDeparture',
+  plannedArrival: 'plannedArrival',
+  actualDeparture: 'actualDeparture',
+  actualArrival: 'actualArrival',
+  status: 'status',
+  route: 'route',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TrackingScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  location: 'location',
+  coordinates: 'coordinates',
+  status: 'status',
+  timestamp: 'timestamp',
+  notes: 'notes',
+  imageUrl: 'imageUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReceiptScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  status: 'status',
+  imageUrl: 'imageUrl',
+  notes: 'notes',
+  verifiedBy: 'verifiedBy',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NLCommandScalarFieldEnum = {
+  id: 'id',
+  command: 'command',
+  intent: 'intent',
+  parameters: 'parameters',
+  confidence: 'confidence',
+  status: 'status',
+  executed: 'executed',
+  result: 'result',
+  error: 'error',
+  userId: 'userId',
+  orderId: 'orderId',
+  createdAt: 'createdAt',
+  executedAt: 'executedAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.IntentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  parameters: 'parameters',
+  requiredParameters: 'requiredParameters',
+  examples: 'examples',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SystemConfigScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  description: 'description',
+  category: 'category',
+  isPublic: 'isPublic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  entity: 'entity',
+  entityId: 'entityId',
+  userId: 'userId',
+  oldValues: 'oldValues',
+  newValues: 'newValues',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.UserRole = exports.$Enums.UserRole = {
+  ADMIN: 'ADMIN',
+  MANAGER: 'MANAGER',
+  DRIVER: 'DRIVER',
+  CUSTOMER: 'CUSTOMER'
+};
+
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.VehicleType = exports.$Enums.VehicleType = {
+  TRUCK: 'TRUCK',
+  VAN: 'VAN',
+  TRAILER: 'TRAILER'
+};
+
+exports.VehicleStatus = exports.$Enums.VehicleStatus = {
+  AVAILABLE: 'AVAILABLE',
+  IN_TRANSIT: 'IN_TRANSIT',
+  MAINTENANCE: 'MAINTENANCE',
+  UNAVAILABLE: 'UNAVAILABLE'
+};
+
+exports.ScheduleStatus = exports.$Enums.ScheduleStatus = {
+  PLANNED: 'PLANNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  DELAYED: 'DELAYED'
+};
+
+exports.TrackingStatus = exports.$Enums.TrackingStatus = {
+  PICKUP: 'PICKUP',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERY: 'DELIVERY',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.ReceiptStatus = exports.$Enums.ReceiptStatus = {
+  PENDING: 'PENDING',
+  UPLOADED: 'UPLOADED',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
+};
+
+exports.CommandStatus = exports.$Enums.CommandStatus = {
+  PENDING: 'PENDING',
+  EXECUTING: 'EXECUTING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
 
 exports.Prisma.ModelName = {
-
+  User: 'User',
+  Customer: 'Customer',
+  Order: 'Order',
+  Vehicle: 'Vehicle',
+  Schedule: 'Schedule',
+  Tracking: 'Tracking',
+  Receipt: 'Receipt',
+  NLCommand: 'NLCommand',
+  Intent: 'Intent',
+  SystemConfig: 'SystemConfig',
+  AuditLog: 'AuditLog'
 };
 
 /**

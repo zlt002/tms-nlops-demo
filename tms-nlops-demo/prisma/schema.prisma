@@ -11,4 +11,303 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 基础模型定义将在任务004中创建
+// 枚举定义
+enum UserRole {
+  ADMIN
+  MANAGER
+  DRIVER
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum VehicleType {
+  TRUCK
+  VAN
+  TRAILER
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  IN_TRANSIT
+  MAINTENANCE
+  UNAVAILABLE
+}
+
+enum ScheduleStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  DELAYED
+}
+
+enum TrackingStatus {
+  PICKUP
+  IN_TRANSIT
+  DELIVERY
+  COMPLETED
+}
+
+enum ReceiptStatus {
+  PENDING
+  UPLOADED
+  VERIFIED
+  REJECTED
+}
+
+enum CommandStatus {
+  PENDING
+  EXECUTING
+  COMPLETED
+  FAILED
+}
+
+// 用户模型
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  name      String
+  role      UserRole @default(CUSTOMER)
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关系
+  vehicles    Vehicle[]
+  receipts    Receipt[]
+  nlCommands  NLCommand[]
+  auditLogs   AuditLog[]
+
+  @@map("users")
+}
+
+// 客户模型
+model Customer {
+  id             String   @id @default(uuid()) @db.Uuid
+  name           String
+  contactPerson  String
+  phone          String
+  email          String
+  address        String
+  company        String
+  creditLimit    Float?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // 关系
+  orders Order[]
+
+  @@map("customers")
+}
+
+// 订单模型
+model Order {
+  id                 String      @id @default(uuid()) @db.Uuid
+  orderNumber        String      @unique
+  customerId         String      @db.Uuid
+  customer           Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status             OrderStatus @default(PENDING)
+  origin             String
+  destination        String
+  weight             Float
+  volume             Float
+  value              Float?
+  pickupTime         DateTime
+  deliveryTime       DateTime
+  specialInstructions String?
+  assignedVehicleId  String?     @db.Uuid
+  assignedVehicle    Vehicle?    @relation(fields: [assignedVehicleId], references: [id])
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  // 关系
+  schedules Schedule[]
+  trackings Tracking[]
+  receipts  Receipt[]
+  nlCommands NLCommand[]
+
+  @@map("orders")
+  @@index([status])
+  @@index([customerId])
+  @@index([assignedVehicleId])
+  @@index([pickupTime])
+  @@index([deliveryTime])
+}
+
+// 车辆模型
+model Vehicle {
+  id                String        @id @default(uuid()) @db.Uuid
+  licensePlate      String        @unique
+  type              VehicleType
+  capacity          Float
+  driverId          String        @db.Uuid
+  driver            User          @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  status            VehicleStatus @default(AVAILABLE)
+  currentLocation   String?
+  lastMaintenance   DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // 关系
+  schedules Schedule[]
+  orders    Order[]
+
+  @@map("vehicles")
+  @@index([status])
+  @@index([driverId])
+  @@index([licensePlate])
+}
+
+// 排车调度模型
+model Schedule {
+  id                 String          @id @default(uuid()) @db.Uuid
+  orderId            String          @db.Uuid
+  order              Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  vehicleId          String          @db.Uuid
+  vehicle            Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  plannedDeparture   DateTime
+  plannedArrival     DateTime
+  actualDeparture    DateTime?
+  actualArrival      DateTime?
+  status             ScheduleStatus  @default(PLANNED)
+  route              String[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@map("schedules")
+  @@index([orderId])
+  @@index([vehicleId])
+  @@index([status])
+  @@index([plannedDeparture])
+  @@index([plannedArrival])
+}
+
+// 实时跟踪模型
+model Tracking {
+  id          String          @id @default(uuid()) @db.Uuid
+  orderId     String          @db.Uuid
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  location    String
+  coordinates Json            // {"lat": 0.0, "lng": 0.0}
+  status      TrackingStatus  @default(IN_TRANSIT)
+  timestamp   DateTime        @default(now())
+  notes       String?
+  imageUrl    String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("trackings")
+  @@index([orderId])
+  @@index([status])
+  @@index([timestamp])
+  @@index([location])
+}
+
+// 回单模型
+model Receipt {
+  id          String         @id @default(uuid()) @db.Uuid
+  orderId     String         @db.Uuid
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status      ReceiptStatus  @default(PENDING)
+  imageUrl    String?
+  notes       String?
+  verifiedBy  String?        @db.Uuid
+  verifiedAt  DateTime?
+  verifier    User?          @relation(fields: [verifiedBy], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("receipts")
+  @@index([orderId])
+  @@index([status])
+  @@index([verifiedBy])
+  @@index([verifiedAt])
+}
+
+// 自然语言命令模型
+model NLCommand {
+  id          String        @id @default(uuid()) @db.Uuid
+  command     String
+  intent      String
+  parameters  Json          // {"key": "value"}
+  confidence  Float         @default(0.0)
+  status      CommandStatus @default(PENDING)
+  executed    Boolean       @default(false)
+  result      Json?
+  error       String?
+  userId      String?       @db.Uuid
+  user        User?         @relation(fields: [userId], references: [id])
+  orderId     String?       @db.Uuid
+  order       Order?        @relation(fields: [orderId], references: [id])
+  createdAt   DateTime      @default(now())
+  executedAt  DateTime?
+  updatedAt   DateTime      @updatedAt
+
+  @@map("nl_commands")
+  @@index([intent])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([executed])
+}
+
+// 意图定义模型
+model Intent {
+  id                 String  @id @default(uuid()) @db.Uuid
+  name               String  @unique
+  description        String
+  parameters         Json    // [{"name": "param", "type": "string", "required": true}]
+  requiredParameters String[]
+  examples           String[]
+  isActive           Boolean @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("intents")
+  @@index([name])
+  @@index([isActive])
+}
+
+// 系统配置模型
+model SystemConfig {
+  id          String  @id @default(uuid()) @db.Uuid
+  key         String  @unique
+  value       Json
+  description String?
+  category    String  @default("general")
+  isPublic    Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_configs")
+  @@index([key])
+  @@index([category])
+}
+
+// 审计日志模型
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  action      String
+  entity      String
+  entityId    String   @db.Uuid
+  userId      String?  @db.Uuid
+  user        User?    @relation(fields: [userId], references: [id])
+  oldValues   Json?
+  newValues   Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@map("audit_logs")
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([userId])
+  @@index([createdAt])
+}

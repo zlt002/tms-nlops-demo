@@ -92,9 +92,249 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  name: 'name',
+  role: 'role',
+  avatar: 'avatar',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  contactPerson: 'contactPerson',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  company: 'company',
+  creditLimit: 'creditLimit',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  customerId: 'customerId',
+  status: 'status',
+  origin: 'origin',
+  destination: 'destination',
+  weight: 'weight',
+  volume: 'volume',
+  value: 'value',
+  pickupTime: 'pickupTime',
+  deliveryTime: 'deliveryTime',
+  specialInstructions: 'specialInstructions',
+  assignedVehicleId: 'assignedVehicleId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VehicleScalarFieldEnum = {
+  id: 'id',
+  licensePlate: 'licensePlate',
+  type: 'type',
+  capacity: 'capacity',
+  driverId: 'driverId',
+  status: 'status',
+  currentLocation: 'currentLocation',
+  lastMaintenance: 'lastMaintenance',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ScheduleScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  vehicleId: 'vehicleId',
+  plannedDeparture: 'plannedDeparture',
+  plannedArrival: 'plannedArrival',
+  actualDeparture: 'actualDeparture',
+  actualArrival: 'actualArrival',
+  status: 'status',
+  route: 'route',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TrackingScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  location: 'location',
+  coordinates: 'coordinates',
+  status: 'status',
+  timestamp: 'timestamp',
+  notes: 'notes',
+  imageUrl: 'imageUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReceiptScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  status: 'status',
+  imageUrl: 'imageUrl',
+  notes: 'notes',
+  verifiedBy: 'verifiedBy',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NLCommandScalarFieldEnum = {
+  id: 'id',
+  command: 'command',
+  intent: 'intent',
+  parameters: 'parameters',
+  confidence: 'confidence',
+  status: 'status',
+  executed: 'executed',
+  result: 'result',
+  error: 'error',
+  userId: 'userId',
+  orderId: 'orderId',
+  createdAt: 'createdAt',
+  executedAt: 'executedAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.IntentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  parameters: 'parameters',
+  requiredParameters: 'requiredParameters',
+  examples: 'examples',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SystemConfigScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  description: 'description',
+  category: 'category',
+  isPublic: 'isPublic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  entity: 'entity',
+  entityId: 'entityId',
+  userId: 'userId',
+  oldValues: 'oldValues',
+  newValues: 'newValues',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.UserRole = exports.$Enums.UserRole = {
+  ADMIN: 'ADMIN',
+  MANAGER: 'MANAGER',
+  DRIVER: 'DRIVER',
+  CUSTOMER: 'CUSTOMER'
+};
+
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.VehicleType = exports.$Enums.VehicleType = {
+  TRUCK: 'TRUCK',
+  VAN: 'VAN',
+  TRAILER: 'TRAILER'
+};
+
+exports.VehicleStatus = exports.$Enums.VehicleStatus = {
+  AVAILABLE: 'AVAILABLE',
+  IN_TRANSIT: 'IN_TRANSIT',
+  MAINTENANCE: 'MAINTENANCE',
+  UNAVAILABLE: 'UNAVAILABLE'
+};
+
+exports.ScheduleStatus = exports.$Enums.ScheduleStatus = {
+  PLANNED: 'PLANNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  DELAYED: 'DELAYED'
+};
+
+exports.TrackingStatus = exports.$Enums.TrackingStatus = {
+  PICKUP: 'PICKUP',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERY: 'DELIVERY',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.ReceiptStatus = exports.$Enums.ReceiptStatus = {
+  PENDING: 'PENDING',
+  UPLOADED: 'UPLOADED',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
+};
+
+exports.CommandStatus = exports.$Enums.CommandStatus = {
+  PENDING: 'PENDING',
+  EXECUTING: 'EXECUTING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
 
 exports.Prisma.ModelName = {
-
+  User: 'User',
+  Customer: 'Customer',
+  Order: 'Order',
+  Vehicle: 'Vehicle',
+  Schedule: 'Schedule',
+  Tracking: 'Tracking',
+  Receipt: 'Receipt',
+  NLCommand: 'NLCommand',
+  Intent: 'Intent',
+  SystemConfig: 'SystemConfig',
+  AuditLog: 'AuditLog'
 };
 /**
  * Create the Client
@@ -143,13 +383,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"./generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// 基础模型定义将在任务004中创建\n",
-  "inlineSchemaHash": "00d69d740dc872e2b266086b1ec20e623f483976a630b5bb67d3691d5a6c2cdc",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"./generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// 枚举定义\nenum UserRole {\n  ADMIN\n  MANAGER\n  DRIVER\n  CUSTOMER\n}\n\nenum OrderStatus {\n  PENDING\n  CONFIRMED\n  IN_TRANSIT\n  DELIVERED\n  CANCELLED\n}\n\nenum VehicleType {\n  TRUCK\n  VAN\n  TRAILER\n}\n\nenum VehicleStatus {\n  AVAILABLE\n  IN_TRANSIT\n  MAINTENANCE\n  UNAVAILABLE\n}\n\nenum ScheduleStatus {\n  PLANNED\n  IN_PROGRESS\n  COMPLETED\n  DELAYED\n}\n\nenum TrackingStatus {\n  PICKUP\n  IN_TRANSIT\n  DELIVERY\n  COMPLETED\n}\n\nenum ReceiptStatus {\n  PENDING\n  UPLOADED\n  VERIFIED\n  REJECTED\n}\n\nenum CommandStatus {\n  PENDING\n  EXECUTING\n  COMPLETED\n  FAILED\n}\n\n// 用户模型\nmodel User {\n  id        String   @id @default(uuid()) @db.Uuid\n  email     String   @unique\n  name      String\n  role      UserRole @default(CUSTOMER)\n  avatar    String?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // 关系\n  vehicles   Vehicle[]\n  receipts   Receipt[]\n  nlCommands NLCommand[]\n  auditLogs  AuditLog[]\n\n  @@map(\"users\")\n}\n\n// 客户模型\nmodel Customer {\n  id            String   @id @default(uuid()) @db.Uuid\n  name          String\n  contactPerson String\n  phone         String\n  email         String\n  address       String\n  company       String\n  creditLimit   Float?\n  createdAt     DateTime @default(now())\n  updatedAt     DateTime @updatedAt\n\n  // 关系\n  orders Order[]\n\n  @@map(\"customers\")\n}\n\n// 订单模型\nmodel Order {\n  id                  String      @id @default(uuid()) @db.Uuid\n  orderNumber         String      @unique\n  customerId          String      @db.Uuid\n  customer            Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)\n  status              OrderStatus @default(PENDING)\n  origin              String\n  destination         String\n  weight              Float\n  volume              Float\n  value               Float?\n  pickupTime          DateTime\n  deliveryTime        DateTime\n  specialInstructions String?\n  assignedVehicleId   String?     @db.Uuid\n  assignedVehicle     Vehicle?    @relation(fields: [assignedVehicleId], references: [id])\n  createdAt           DateTime    @default(now())\n  updatedAt           DateTime    @updatedAt\n\n  // 关系\n  schedules  Schedule[]\n  trackings  Tracking[]\n  receipts   Receipt[]\n  nlCommands NLCommand[]\n\n  @@index([status])\n  @@index([customerId])\n  @@index([assignedVehicleId])\n  @@index([pickupTime])\n  @@index([deliveryTime])\n  @@map(\"orders\")\n}\n\n// 车辆模型\nmodel Vehicle {\n  id              String        @id @default(uuid()) @db.Uuid\n  licensePlate    String        @unique\n  type            VehicleType\n  capacity        Float\n  driverId        String        @db.Uuid\n  driver          User          @relation(fields: [driverId], references: [id], onDelete: Cascade)\n  status          VehicleStatus @default(AVAILABLE)\n  currentLocation String?\n  lastMaintenance DateTime?\n  createdAt       DateTime      @default(now())\n  updatedAt       DateTime      @updatedAt\n\n  // 关系\n  schedules Schedule[]\n  orders    Order[]\n\n  @@index([status])\n  @@index([driverId])\n  @@index([licensePlate])\n  @@map(\"vehicles\")\n}\n\n// 排车调度模型\nmodel Schedule {\n  id               String         @id @default(uuid()) @db.Uuid\n  orderId          String         @db.Uuid\n  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)\n  vehicleId        String         @db.Uuid\n  vehicle          Vehicle        @relation(fields: [vehicleId], references: [id], onDelete: Cascade)\n  plannedDeparture DateTime\n  plannedArrival   DateTime\n  actualDeparture  DateTime?\n  actualArrival    DateTime?\n  status           ScheduleStatus @default(PLANNED)\n  route            String[]\n  createdAt        DateTime       @default(now())\n  updatedAt        DateTime       @updatedAt\n\n  @@index([orderId])\n  @@index([vehicleId])\n  @@index([status])\n  @@index([plannedDeparture])\n  @@index([plannedArrival])\n  @@map(\"schedules\")\n}\n\n// 实时跟踪模型\nmodel Tracking {\n  id          String         @id @default(uuid()) @db.Uuid\n  orderId     String         @db.Uuid\n  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)\n  location    String\n  coordinates Json // {\"lat\": 0.0, \"lng\": 0.0}\n  status      TrackingStatus @default(IN_TRANSIT)\n  timestamp   DateTime       @default(now())\n  notes       String?\n  imageUrl    String?\n  createdAt   DateTime       @default(now())\n  updatedAt   DateTime       @updatedAt\n\n  @@index([orderId])\n  @@index([status])\n  @@index([timestamp])\n  @@index([location])\n  @@map(\"trackings\")\n}\n\n// 回单模型\nmodel Receipt {\n  id         String        @id @default(uuid()) @db.Uuid\n  orderId    String        @db.Uuid\n  order      Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)\n  status     ReceiptStatus @default(PENDING)\n  imageUrl   String?\n  notes      String?\n  verifiedBy String?       @db.Uuid\n  verifiedAt DateTime?\n  verifier   User?         @relation(fields: [verifiedBy], references: [id])\n  createdAt  DateTime      @default(now())\n  updatedAt  DateTime      @updatedAt\n\n  @@index([orderId])\n  @@index([status])\n  @@index([verifiedBy])\n  @@index([verifiedAt])\n  @@map(\"receipts\")\n}\n\n// 自然语言命令模型\nmodel NLCommand {\n  id         String        @id @default(uuid()) @db.Uuid\n  command    String\n  intent     String\n  parameters Json // {\"key\": \"value\"}\n  confidence Float         @default(0.0)\n  status     CommandStatus @default(PENDING)\n  executed   Boolean       @default(false)\n  result     Json?\n  error      String?\n  userId     String?       @db.Uuid\n  user       User?         @relation(fields: [userId], references: [id])\n  orderId    String?       @db.Uuid\n  order      Order?        @relation(fields: [orderId], references: [id])\n  createdAt  DateTime      @default(now())\n  executedAt DateTime?\n  updatedAt  DateTime      @updatedAt\n\n  @@index([intent])\n  @@index([status])\n  @@index([userId])\n  @@index([createdAt])\n  @@index([executed])\n  @@map(\"nl_commands\")\n}\n\n// 意图定义模型\nmodel Intent {\n  id                 String   @id @default(uuid()) @db.Uuid\n  name               String   @unique\n  description        String\n  parameters         Json // [{\"name\": \"param\", \"type\": \"string\", \"required\": true}]\n  requiredParameters String[]\n  examples           String[]\n  isActive           Boolean  @default(true)\n  createdAt          DateTime @default(now())\n  updatedAt          DateTime @updatedAt\n\n  @@index([name])\n  @@index([isActive])\n  @@map(\"intents\")\n}\n\n// 系统配置模型\nmodel SystemConfig {\n  id          String   @id @default(uuid()) @db.Uuid\n  key         String   @unique\n  value       Json\n  description String?\n  category    String   @default(\"general\")\n  isPublic    Boolean  @default(false)\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  @@index([key])\n  @@index([category])\n  @@map(\"system_configs\")\n}\n\n// 审计日志模型\nmodel AuditLog {\n  id        String   @id @default(uuid()) @db.Uuid\n  action    String\n  entity    String\n  entityId  String   @db.Uuid\n  userId    String?  @db.Uuid\n  user      User?    @relation(fields: [userId], references: [id])\n  oldValues Json?\n  newValues Json?\n  ipAddress String?\n  userAgent String?\n  createdAt DateTime @default(now())\n\n  @@index([action])\n  @@index([entity])\n  @@index([entityId])\n  @@index([userId])\n  @@index([createdAt])\n  @@map(\"audit_logs\")\n}\n",
+  "inlineSchemaHash": "c325fc18cd7ba4f43d330192a3b97602b05e94041de39339c3d9846971854b31",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"UserRole\"},{\"name\":\"avatar\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"vehicles\",\"kind\":\"object\",\"type\":\"Vehicle\",\"relationName\":\"UserToVehicle\"},{\"name\":\"receipts\",\"kind\":\"object\",\"type\":\"Receipt\",\"relationName\":\"ReceiptToUser\"},{\"name\":\"nlCommands\",\"kind\":\"object\",\"type\":\"NLCommand\",\"relationName\":\"NLCommandToUser\"},{\"name\":\"auditLogs\",\"kind\":\"object\",\"type\":\"AuditLog\",\"relationName\":\"AuditLogToUser\"}],\"dbName\":\"users\"},\"Customer\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"contactPerson\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"company\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"creditLimit\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"orders\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"CustomerToOrder\"}],\"dbName\":\"customers\"},\"Order\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"orderNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"customerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"customer\",\"kind\":\"object\",\"type\":\"Customer\",\"relationName\":\"CustomerToOrder\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"OrderStatus\"},{\"name\":\"origin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"destination\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"weight\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"volume\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"pickupTime\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"deliveryTime\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"specialInstructions\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"assignedVehicleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"assignedVehicle\",\"kind\":\"object\",\"type\":\"Vehicle\",\"relationName\":\"OrderToVehicle\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"schedules\",\"kind\":\"object\",\"type\":\"Schedule\",\"relationName\":\"OrderToSchedule\"},{\"name\":\"trackings\",\"kind\":\"object\",\"type\":\"Tracking\",\"relationName\":\"OrderToTracking\"},{\"name\":\"receipts\",\"kind\":\"object\",\"type\":\"Receipt\",\"relationName\":\"OrderToReceipt\"},{\"name\":\"nlCommands\",\"kind\":\"object\",\"type\":\"NLCommand\",\"relationName\":\"NLCommandToOrder\"}],\"dbName\":\"orders\"},\"Vehicle\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"licensePlate\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"VehicleType\"},{\"name\":\"capacity\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"driverId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"driver\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToVehicle\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"VehicleStatus\"},{\"name\":\"currentLocation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lastMaintenance\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"schedules\",\"kind\":\"object\",\"type\":\"Schedule\",\"relationName\":\"ScheduleToVehicle\"},{\"name\":\"orders\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToVehicle\"}],\"dbName\":\"vehicles\"},\"Schedule\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"orderId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"order\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToSchedule\"},{\"name\":\"vehicleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"vehicle\",\"kind\":\"object\",\"type\":\"Vehicle\",\"relationName\":\"ScheduleToVehicle\"},{\"name\":\"plannedDeparture\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"plannedArrival\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"actualDeparture\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"actualArrival\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ScheduleStatus\"},{\"name\":\"route\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"schedules\"},\"Tracking\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"orderId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"order\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToTracking\"},{\"name\":\"location\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"coordinates\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"TrackingStatus\"},{\"name\":\"timestamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"imageUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"trackings\"},\"Receipt\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"orderId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"order\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToReceipt\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ReceiptStatus\"},{\"name\":\"imageUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"verifiedBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"verifiedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"verifier\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ReceiptToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"receipts\"},\"NLCommand\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"command\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"intent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"parameters\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"confidence\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"CommandStatus\"},{\"name\":\"executed\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"result\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"error\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"NLCommandToUser\"},{\"name\":\"orderId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"order\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"NLCommandToOrder\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"executedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"nl_commands\"},\"Intent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"parameters\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"requiredParameters\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"examples\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"intents\"},\"SystemConfig\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isPublic\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"system_configs\"},\"AuditLog\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"action\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"entity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"entityId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AuditLogToUser\"},{\"name\":\"oldValues\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"newValues\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"audit_logs\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

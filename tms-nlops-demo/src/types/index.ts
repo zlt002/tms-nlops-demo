@@ -99,10 +99,10 @@ export interface NLCommand {
   id: string
   command: string
   intent: string
-  parameters: Record<string, any>
+  parameters: Record<string, unknown>
   confidence: number
   executed: boolean
-  result?: any
+  result?: unknown
   createdAt: Date
   executedAt?: Date
 }
