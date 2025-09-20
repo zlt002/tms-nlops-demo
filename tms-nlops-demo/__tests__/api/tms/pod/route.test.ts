@@ -202,7 +202,7 @@ describe('GET /api/tms/pod', () => {
       const callArgs = (PODService.getPODs as jest.Mock).mock.calls[0][0]
 
       expect(callArgs.orderId).toBeUndefined()
-      expect(callArgs.tags).toBeUndefined()
+      expect(callArgs.tags).toEqual([]) // 空字符串应该转换为空数组
     })
   })
 })

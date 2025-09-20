@@ -28,7 +28,7 @@ describe('POST /api/tms/pod/[orderId]', () => {
     fileUrl: '/api/tms/pod/files/order123/timestamp_random.jpg',
     checksum: 'md5hash123',
     deliveryLocation: '北京市朝阳区',
-    deliveryTime: new Date('2024-01-01T10:00:00Z'),
+    deliveryTime: new Date('2024-01-01T10:00:00Z').toISOString(),
     receiverName: '张三',
     receiverContact: '13800138000',
     cargoCondition: '良好',
@@ -37,8 +37,8 @@ describe('POST /api/tms/pod/[orderId]', () => {
     version: 1,
     createdBy: 'user1',
     updatedBy: 'user1',
-    createdAt: new Date('2024-01-01T10:00:00Z'),
-    updatedAt: new Date('2024-01-01T10:00:00Z'),
+    createdAt: new Date('2024-01-01T10:00:00Z').toISOString(),
+    updatedAt: new Date('2024-01-01T10:00:00Z').toISOString(),
     order: {
       id: mockOrderId,
       orderNumber: 'ORD001',
@@ -107,7 +107,7 @@ describe('POST /api/tms/pod/[orderId]', () => {
         orderId: mockOrderId,
         documentType: 'PROOF_OF_DELIVERY',
         deliveryLocation: '北京市朝阳区',
-        deliveryTime: expect.any(Date),
+        deliveryTime: new Date('2024-01-01T10:00:00Z'),
         receiverName: '张三',
         receiverContact: '13800138000',
         cargoCondition: '良好',
@@ -158,6 +158,7 @@ describe('POST /api/tms/pod/[orderId]', () => {
         orderId: mockOrderId,
         file: mockFile,
         createdBy: 'user1',
+        documentType: 'PROOF_OF_DELIVERY',
         tags: []
       })
     })

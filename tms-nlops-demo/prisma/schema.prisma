@@ -140,6 +140,27 @@ enum CheckpointStatus {
   SKIPPED
 }
 
+enum DispatchStatus {
+  PLANNING
+  SCHEDULED
+  ASSIGNED
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+  DELAYED
+}
+
+enum DriverStatus {
+  AVAILABLE
+  ON_DUTY
+  DRIVING
+  RESTING
+  OFF_DUTY
+  SICK_LEAVE
+  VACATION
+  SUSPENDED
+}
+
 enum ReceiptStatus {
   PENDING
   UPLOADED
@@ -363,22 +384,157 @@ model Vehicle {
   licensePlate      String        @unique
   type              VehicleType
   capacity          Float
-  driverId          String        @db.Uuid
-  driver            User          @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  driverId          String?        @db.Uuid
+  driver            User?         @relation(fields: [driverId], references: [id], onDelete: SetNull)
   status            VehicleStatus @default(AVAILABLE)
   currentLocation   String?
   lastMaintenance   DateTime?
+  maxLoad           Float         @default(0)    // 最大载重(吨)
+  maxVolume         Float         @default(0)    // 最大体积(立方米)
+  fuelLevel         Float         @default(0)    // 燃油水平(%)
+  dailyRate         Float         @default(0)    // 日租金
+  maintenanceCost   Float         @default(0)    // 维护成本
+  isActive          Boolean       @default(true)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
   // 关系
   schedules Schedule[]
   orders    Order[]
+  dispatches Dispatch[]
+  shipments Shipment[]
+  drivers   Driver[]
 
   @@map("vehicles")
   @@index([status])
   @@index([driverId])
   @@index([licensePlate])
+}
+
+// 驾驶员模型
+model Driver {
+  id            String       @id @default(cuid())
+  driverNumber  String       @unique
+  name          String
+  phone         String
+  email         String?
+  licenseNumber String       @unique
+  licenseType   String
+  licenseExpiry DateTime
+  address       String
+  emergencyContact String?
+  emergencyPhone String?
+
+  // 状态信息
+  status        DriverStatus @default(AVAILABLE)
+  drivingYears  Int          @default(0)
+  accidentCount Int          @default(0)
+  violationCount Int         @default(0)
+
+  // 工作信息
+  hourlyRate    Float        // 小时工资
+  monthlySalary Float?       // 月薪
+  hireDate      DateTime
+  lastMedicalCheck DateTime?
+
+  // 评分信息
+  rating        Float        @default(0) // 司机评分
+  totalTrips    Int          @default(0)
+  totalDistance Float        @default(0) // 总行驶里程
+
+  // 元数据
+  notes         String?
+  tags          String[]
+  isActive      Boolean      @default(true)
+  createdBy     String
+  updatedBy     String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // 关联关系
+  vehicles      Vehicle[]
+  shipments     Shipment[]
+  documents     Document[]
+  dispatches    Dispatch[]
+
+  @@map("drivers")
+  @@index([status])
+  @@index([licenseNumber])
+  @@index([isActive])
+}
+
+// 发车单模型
+model Dispatch {
+  id                String           @id @default(cuid())
+  dispatchNumber    String           @unique
+  customerId        String
+  customer          Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicleId         String
+  vehicle           Vehicle          @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  driverId          String
+  driver            Driver           @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  // 路线信息
+  originAddress     String
+  destinationAddress String
+  originCoordinates String?          // JSON格式: {lat: number, lng: number}
+  destinationCoordinates String?     // JSON格式: {lat: number, lng: number}
+  distance          Float?           // 距离(公里)
+  estimatedDuration Float?           // 预计时间(小时)
+
+  // 时间信息
+  plannedDeparture  DateTime         // 计划发车时间
+  actualDeparture   DateTime?        // 实际发车时间
+  estimatedArrival  DateTime         // 预计到达时间
+  actualArrival     DateTime?        // 实际到达时间
+  completedAt       DateTime?        // 完成时间
+  cancelledAt       DateTime?        // 取消时间
+
+  // 货物信息
+  totalWeight       Float            // 总货物重量(吨)
+  totalVolume       Float            // 总货物体积(立方米)
+  totalValue        Float?           // 总货物价值
+
+  // 费用信息
+  baseRate          Float            // 基础费率
+  fuelSurcharge     Float            @default(0) // 燃油附加费
+  tollFees          Float            @default(0) // 过路费
+  additionalCharges Float           @default(0) // 额外费用
+  totalAmount       Float            // 总费用
+
+  // 状态信息
+  status            DispatchStatus   @default(SCHEDULED)
+  priority          Priority         @default(MEDIUM)
+
+  // 跟踪信息
+  currentLocation   String?          // 当前位置
+  currentCoordinates String?          // JSON格式
+  progress          Float            @default(0) // 运输进度百分比
+  route             Json?            // 路线信息
+
+  // 元数据
+  instructions      String?          // 运输说明
+  requirements      String?          // 特殊要求
+  notes             String?
+  cancelReason      String?          // 取消原因
+  createdBy         String
+  updatedBy         String
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // 关联关系
+  shipments         Shipment[]
+  trackingLogs      TrackingLog[]
+  documents         Document[]
+
+  @@map("dispatches")
+  @@index([status])
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([customerId])
+  @@index([plannedDeparture])
+  @@index([estimatedArrival])
+  @@index([createdAt])
 }
 
 // 排车调度模型
@@ -531,39 +687,58 @@ model AuditLog {
 
 // 运单模型
 model Shipment {
-  id                String        @id @default(cuid())
-  shipmentNumber    String        @unique
+  id                String           @id @default(cuid())
+  shipmentNumber    String           @unique
   customerId        String
-  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer          Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
   orderId           String?
-  order             Order?        @relation(fields: [orderId], references: [id])
+  order             Order?           @relation(fields: [orderId], references: [id])
+  dispatchId        String?
+  dispatch          Dispatch?        @relation(fields: [dispatchId], references: [id], onDelete: Cascade)
   vehicleId         String?
-  vehicle           Vehicle?      @relation(fields: [vehicleId], references: [id])
+  vehicle           Vehicle?         @relation(fields: [vehicleId], references: [id])
+  driverId          String?
+  driver            Driver?          @relation(fields: [driverId], references: [id])
 
   originAddress     String
   destinationAddress String
-  weight            Float
-  volume            Float
-  value             Float?
+  originCoordinates String?          // JSON格式: {lat: number, lng: number}
+  destinationCoordinates String?     // JSON格式: {lat: number, lng: number}
+  weight            Float            // 货物重量(吨)
+  volume            Float            // 货物体积(立方米)
+  value             Float?           // 货物价值
+  specialHandling   Boolean          @default(false) // 特殊处理需求
 
-  departureTime     DateTime?
-  estimatedArrival  DateTime?
-  actualArrival     DateTime?
+  departureTime     DateTime?        // 发车时间
+  estimatedArrival  DateTime?        // 预计到达时间
+  actualArrival     DateTime?        // 实际到达时间
 
-  status            String        @default("PLANNED")
+  status            String           @default("PLANNED")
+  sequence          Int              @default(1) // 在发车单中的顺序
+  progress          Float            @default(0) // 运输进度百分比
+
   driverNotes       String?
   customerNotes     String?
 
   createdBy         String
   updatedBy         String
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // 关联关系
+  trackingLogs      TrackingLog[]
+  checkpoints       ShipmentCheckpoint[]
+  alerts            TrackingAlert[]
+  route             TrackingRoute?
 
   @@map("shipments")
   @@index([customerId])
   @@index([orderId])
+  @@index([dispatchId])
   @@index([vehicleId])
+  @@index([driverId])
   @@index([status])
+  @@index([sequence])
 }
 
 // 文档模型
@@ -601,18 +776,29 @@ model Document {
 // 跟踪日志模型
 model TrackingLog {
   id          String   @id @default(cuid())
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     String?
+  order       Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  shipmentId  String?
+  shipment    Shipment? @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  dispatchId  String?
+  dispatch    Dispatch? @relation(fields: [dispatchId], references: [id], onDelete: Cascade)
+
   location    String
   status      String
   coordinates Json     // {"lat": 0.0, "lng": 0.0}
   notes       String?
   imageUrl    String?
+  event       String?  // 事件类型
+  timestamp   DateTime @default(now())
+
   createdAt   DateTime @default(now())
 
   @@map("tracking_logs")
   @@index([orderId])
+  @@index([shipmentId])
+  @@index([dispatchId])
   @@index([status])
+  @@index([timestamp])
   @@index([createdAt])
 }
 
