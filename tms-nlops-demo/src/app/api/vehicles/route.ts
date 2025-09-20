@@ -5,7 +5,7 @@ import { createVehicleSchema, vehicleQuerySchema } from '@/lib/validators/vehicl
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
     const query = {
       vehicleType: searchParams.get('vehicleType') || undefined,
       status: searchParams.get('status') || undefined,

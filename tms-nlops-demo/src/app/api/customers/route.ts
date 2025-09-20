@@ -5,7 +5,7 @@ import { createCustomerSchema, customerQuerySchema } from '@/lib/validators/cust
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
     const query = {
       customerType: searchParams.get('customerType') || undefined,
       status: searchParams.get('status') || undefined,

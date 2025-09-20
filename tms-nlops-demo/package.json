@@ -7,9 +7,12 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "quality": "npm run lint && npm run format:check && npm run type-check",
+    "setup": "npm install && npm run prepare",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
@@ -17,7 +20,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset",
     "db:init": "node scripts/init-database.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "commit": "git-cz"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

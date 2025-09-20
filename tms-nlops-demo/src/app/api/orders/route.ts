@@ -7,7 +7,7 @@ import { OrderStatus, Priority, PaymentStatus } from '@prisma/client'
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   const { searchParams } = new URL(request.url)
-  
+
   const query = {
     customerId: searchParams.get('customerId') || undefined,
     status: searchParams.get('status') || undefined,

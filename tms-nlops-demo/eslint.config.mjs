@@ -21,6 +21,13 @@ const eslintConfig = [
       'prisma/generated/**',
       'prisma/seed.ts',
       'scripts/**',
+      '*.config.js',
+      '*.config.mjs',
+      '*.config.ts',
+      'jest.config.js',
+      'jest.setup.js',
+      '__tests__/**',
+      'tests/**',
     ],
   },
   {
@@ -32,11 +39,21 @@ const eslintConfig = [
       // TypeScript 规则
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-require-imports': 'off',
 
       // 通用规则
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prefer-const': 'error',
       'no-var': 'error',
+      'no-multiple-empty-lines': ['error', { max: 1 }],
+      'eol-last': 'error',
+      'no-trailing-spaces': 'error',
+    },
+  },
+  {
+    files: ['*.js', '*.jsx', '*.ts', '*.tsx'],
+    rules: {
+      '@typescript-eslint/no-var-requires': 'off',
     },
   },
 ]

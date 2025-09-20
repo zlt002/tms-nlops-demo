@@ -205,7 +205,7 @@ async function executeCreateOrder(params: any) {
 }
 
 async function executeQueryOrders(params: any) {
-  let where: any = {}
+  const where: any = {}
 
   if (params.orderNumber) {
     where.orderNumber = { contains: params.orderNumber, mode: 'insensitive' }
@@ -250,7 +250,7 @@ async function executeQueryOrders(params: any) {
 }
 
 async function executeQueryVehicle(params: any) {
-  let where: any = {}
+  const where: any = {}
 
   if (params.plateNumber) {
     where.licenseNumber = { contains: params.plateNumber, mode: 'insensitive' }
